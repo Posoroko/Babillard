@@ -1,5 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import Home from '../views/Home.vue'
+import Login from '@/views/auth/Login.vue'
+import Signup from '@/views/auth/Signup'
+import EspacePerso from '@/views/EspacePerso'
+import Babillard from '@/views/Babillard'
+
+
+//route guard
+import { projectAuth } from '@/firebase/config'
+
+const requireAuth = (to, from, next ) => {
+  let user = projectAuth.currentUser
+  if(!user){
+    next({ name: 'Home'})
+  } else{
+    next()
+  }
+}
+
+
 
 const routes = [
   {
@@ -8,12 +27,26 @@ const routes = [
     component: Home
   },
   {
-    path: '/about',
-    name: 'About',
-    // route level code-splitting
-    // this generates a separate chunk (about.[hash].js) for this route
-    // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    path: '/login',
+    name: 'Login',
+    component: Login
+  },
+  {
+    path: '/signup',
+    name: 'Signup',
+    component: Signup
+  },
+  {
+    path: '/espace-perso',
+    name: 'EspacePerso',
+    component: EspacePerso,
+    beforeEnter: requireAuth
+  },
+  {
+    path: '/babillard/:id',
+    name: 'Babillard',
+    component: Babillard,
+    props: true
   }
 ]
 
