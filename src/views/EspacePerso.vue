@@ -15,9 +15,9 @@
     <section class="work-area" v-if="component == 'home'">
        
         <div v-if="error" class="error">Nous n'avons pas pu récupérer vos babillards... Il semble y avoir un problème de connexion</div>
-        <div v-if="documents" class="babillard-box">
+        <div v-if="document" class="babillard-box">
             
-            <div class="babi-tile pointer" v-for="babi in documents" :key="babi.id">
+            <div class="babi-tile pointer" v-for="babi in document" :key="babi.id">
                 <router-link class="full babi-link" :to="{ name: 'Babillard', params: { id: babi.id} }">
                     <h3>{{ babi.title }}</h3>
                     <p>{{ babi.description }}</p>
@@ -44,7 +44,8 @@
 import NewBab from '@/components/NewBab'
 import getUser from '@/composables/getUser'
 import { ref, onMounted, onUpdated } from 'vue'
-import getCollection from '@/composables/getCollection'
+import projectFirestore from '@/firebase/config'
+import getDocument from '@/composables/getDocument'
 
 export default {
   components: { NewBab },
@@ -53,13 +54,16 @@ export default {
     const nom = ref('')
     const component = ref('home')
     const babOpened = ref(false)
-    const { documents, error } = getCollection('users/' + user.value.uid + '/babillards')
+    const { document, error } = getDocument('users/' + user.value.uid + '/userData', 'babiList')
+    
+    // const { documents, error } = getCollection('users/' + user.value.uid + '/babillards')
     // const { documents } = await getCollection('users/' + user.value.uid + '/babillards')
     // const documents = ref(JSON.parse(sessionStorage.getItem('babillards')))
     
 
     const goToNewBab = () => {
       component.value = 'new'
+
     }
 
    onMounted(()=>{
@@ -75,7 +79,7 @@ export default {
 
 
 
-    return { user, nom, component, goToNewBab,  babOpened, documents, error  }
+    return { user, nom, component, goToNewBab,  babOpened, document, error  }
   }
 }
 </script>

@@ -25,6 +25,7 @@ import getUser from '@/composables/getUser'
 import { timestamp } from '@/firebase/config'
 import { projectFirestore } from '@/firebase/config'
 
+
 export default {
     setup(){
         const title = ref('')
@@ -38,14 +39,14 @@ export default {
         
 
         const createBab = async () => {
-            
-            
+   
             if(title.value){
+                const babToBeAdded = 
                 isPending.value = true
                 let time = Date.now().toString()
                 console.log(time)
-                await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(time).set(
-                        {title: title.value,
+                await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(time).set({
+                    title: title.value,
                     description: description.value,
                     type: type.value,
                     user: user.value.uid,
@@ -53,62 +54,53 @@ export default {
                     content: {
 
                     },
-                    createdAt: timestamp()
-                }        
-
-                )
-
-
-
-
-
-                // var newBabRef = await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc()
-                // let temp = newBabRef.path.split('/')
-                // console.log(temp[temp.length - 1])
-                // await newBabRef.set(
-                //     {title: title.value,
-                //     description: description.value,
-                //     type: type.value,
-                //     user: user.value.uid,
-                //     userName: user.value.displayName,
-                //     content: {
-
-                //     },
-                //     createdAt: timestamp()
-                // })
-
-
-
-
-
-                // await addDoc(
-                //     {title: title.value,
-                //     description: description.value,
-                //     type: type.value,
-                //     user: user.value.uid,
-                //     userName: user.value.displayName,
-                //     content: {
-
-                //     },
-                //     createdAt: timestamp()
-                // })
+                    createdAt: timestamp(),
+                    id: time
+                })
+                getAndModifyBabiList(time, {
+                    title: title.value,
+                    description: description.value,
+                    id: time
+                })
+                
                 isPending.value = false
                 if(!error.value){
                     console.log('babillard ajouté!!')
                     title.value = ''
                     description.value = ''
                     error.value= null
-                    router.push( { name: 'Home'} )
+                    router.push( { name: 'EspacePerso'} )
                 }
                 
             } else{
                 formError.value = 'Veuillez saisir un titre'
             }
 
-
-            
-            
         }
+        const getAndModifyBabiList = async (id, inputBab) => {
+            
+            let tempDoc = null;
+            projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').get().then((doc) => {
+                
+                tempDoc = doc.data()
+                if(doc.exists){
+                    console.log(tempDoc.list)
+                    tempDoc.list.push(inputBab)
+                    console.log(tempDoc.list)
+                    projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({list: tempDoc.list})
+                } else{
+                    console.log('it prints here')
+                    let newArr = new Array(inputBab)
+                    projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({list: newArr})
+                }
+  
+                })
+        }
+        const updateBabiList = async (newData) => {
+    
+        }
+
+
 
 
         return { createBab, title, description, formError, type, isPending }
