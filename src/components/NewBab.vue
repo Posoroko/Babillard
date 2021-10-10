@@ -1,18 +1,23 @@
 <template>
     
     <div class="form">
-        
-        <input type="text" required placeholder="Titre"  v-model="title">
-        <textarea name="description" id="description" cols="30" rows="10" placeholder="Description du babillard" v-model="description"></textarea>
-        <div class="choose-type">
-            <h3>Quel type de babillard voulez-vous créer?</h3>
-            <div class="type-tile" @click="type='toile'">
-                <h1 class="toile" id="toile">Toile</h1>
+        <div class="page main" v-if="page=='main'">
+            <input type="text" required placeholder="Titre"  v-model="title">
+            <textarea name="description" id="description" cols="30" rows="10" placeholder="Description du babillard" v-model="description"></textarea>
+            <div class="choose-type">
+                <h3>Quel type de babillard voulez-vous créer?</h3>
+                <div class="type-tile" @click="type='toile'">
+                    <h1 class="toile" id="toile">Toile</h1>
+                </div>
+                <div v-if="formError" class="error">{{ formError }}</div>
+                <button v-if="isPending" disabled>patientez...</button>
+                <button v-else @click="createBab">créer</button>
             </div>
-            <div v-if="formError" class="error">{{ formError }}</div>
-            <button v-if="isPending" disabled>patientez...</button>
-            <button v-else @click="createBab">créer</button>
         </div>
+        <div class="page color" v-if="page=='color'">
+
+        </div>
+        
     </div>
 </template>
     
@@ -24,6 +29,7 @@ import useCollection from '@/composables/useCollection'
 import getUser from '@/composables/getUser'
 import { timestamp } from '@/firebase/config'
 import { projectFirestore } from '@/firebase/config'
+const page = ref('main')
 
 
 export default {
@@ -103,13 +109,23 @@ export default {
 
 
 
-        return { createBab, title, description, formError, type, isPending }
+        return { createBab, title, description, formError, type, isPending, page }
     }
 }
 </script>
 
 <style scoped>
-
+.form{
+    width: min(100%, 600px);
+    padding: 3vw;
+    margin: 5vh auto;
+}
+.page{
+    width: 100%;
+}
+.color{
+    
+}
 .type-tile{
   width: 250px;
   height: 200px;
@@ -125,11 +141,7 @@ export default {
 h3{
     padding: 20px;
 }
-.form{
-    width: min(100%, 600px);
-    padding: 3vw;
-    margin: 5vh auto;
-}
+
 input, textarea, .choose-type{
     margin: auto;
 }
