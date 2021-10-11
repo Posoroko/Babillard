@@ -9,7 +9,7 @@
         <div class="tool-box" v-if="component == 'home'">
          <button @click="goToNewBab">Créer un babillard</button>
         </div >
-          <h1 class="tool-box" v-if="component == 'new'"><span class="close-btn" @click="component = 'home'">arrow_back</span></h1>
+          <h1 class="tool-box" v-if="component == 'new'"><span class="nav-btn" @click="component = 'home'">arrow_back</span></h1>
       </div>
 
     <section class="work-area" v-if="component == 'home'">
@@ -107,12 +107,7 @@ header, .tool-bar{
   flex-wrap: wrap;
   justify-content: center;
 }
-.tile{
-   width: 250px;
-  height: 200px;
-  border-radius: 25px;
-  margin: 10px;
-}
+
 
 .babi-link{
   width: 100%;

@@ -1,30 +1,40 @@
 <template>
     <div class="tool-box">
-        <span class="close-btn" @click="goBack">arrow_back</span>
+        <span class="nav-btn" @click="goBack">arrow_back</span>
         <h1>{{title}}</h1>
       
       
     </div>
-    <div class="babillard full parent3d" @dblclick="requestNewCard">
+    <div class="babillard full parent3d" id="babillard" @dblclick="requestNewCard" @mousemove="moving" @mouseup="letGo">
+
+      <div  class="tile pointer lift absolute card" 
+        v-for="card in cardBundle" 
+        :id="card.id"
+        :key="card.id" 
+        :style="{left: card.posX, top: card.posY }" 
+        @mousedown="selectCard" >
+        <h3>{{ card.title }}</h3>
+        <p>{{ card.content }}</p>        
+      </div>
 
        
       
       <transition name="fade">  
-        <div class="requestPanel lift" v-if="requestPanelIsOn" :style="{left: left, top: top}"  key="1">
+        <div class="requestPanel lift" v-if="requestPanelIsOn" :style="{left: posX, top: posY }"  key="1">
           
-        <div class="newCardType" v-if="typeOfNewCard === null">
-          <span class="close-btn-request">close</span>
+        <div class="newCardType" v-if="newCardType === null">
+          <span class="close-btn-request" @click="requestPanelIsOn = false">close</span>
           <h1 class="new-card-title">Quel type de carte voulez-vous créer</h1>
           <div class="btn-box flex-row-centered">
-            <button @click="typeOfNewCard = 'note'">note</button>
+            <button @click="newCardType = 'note'">note</button>
           </div>
 
         </div>
-        <div class="newNote" v-if="typeOfNewCard === 'note'">
-          <div class="close-btn-request-box"><span class="close-btn-request" @click="typeOfNewCard =  null">arrow_back</span></div>
+        <div class="newNote" v-if="newCardType === 'note'">
+          <div class="close-btn-request-box"><span class="close-btn-request" @click="newCardType =  null">arrow_back</span></div>
           <h1>Créer une nouvelle note</h1>
           <input class="new-card-input" type="text" v-model="newCardTitle" placeholder="Titre">
-          <textarea cols="5" rows="5" placeholder="notez ici vos idées..." v-model="newCardNote"></textarea>
+          <textarea cols="5" rows="5" placeholder="notez ici vos idées..." v-model="newCardContent"></textarea>
           <button class="new-post-btn" @click="createNewCard">créer</button>
         </div>
       
@@ -37,7 +47,6 @@
 </template>
 
 <script>
-
 import{ projectFirestore } from '@/firebase/config'
 import getUser from '@/composables/getUser'
 import { useRouter } from 'vue-router'
@@ -49,29 +58,69 @@ export default {
     
     const { user } = getUser()
     const document = ref(null)
+    const cardBundle = ref(null)
     const title = ref()
     const description = ref()
     const router = useRouter()
     const requestPanelIsOn = ref(false)
-
-    const typeOfNewCard = ref(null)
-
     const newCardTitle = ref('')
-    const newCardNote = ref('')
-    const left = ref()
-    const top = ref()
+    const newCardType = ref(null)
+    const newCardContent = ref('')
+    const posX = ref()
+    const posY = ref()
     const id = ref(props.id)
 
+
+
+    const createNewCard = async () => {
+      let time = Date.now().toString()
+      const newCard = {
+        tile: newCardTitle.value,
+        type: newCardType.value,
+        content: newCardContent.value,
+        id: time,
+        posX: posX.value,
+        posY: posY.value
+      }
+      requestPanelIsOn.value = false
+      
+      getAndModifyField(newCard)
+    }
+    const getAndModifyField = async (newCard) => {    
+        
+        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).get().then((doc) => {
+          if(doc.data().cardList){
+            var tempDoc = doc.data().cardList;
+            tempDoc.push(newCard)
+            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: tempDoc}).then(()=> {
+              cardBundle.value = tempDoc
+              console.log(cardList.value)
+            })
+
+            } else {
+            let newArr = new Array(newCard)
+            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({cardList: newArr})
+            cardBundle.value = newArr
+          }
+          
+          
+        })
+      }
+    
+    
+
     const requestNewCard = (e) => {
-      var pos =e.target.getBoundingClientRect()
-      left.value = e.clientX - pos.left + 'px'
-      top.value = e.clientY - pos.top + 'px'
-      requestPanelIsOn.value = true
+      if(!requestPanelIsOn.value){
+        var pos =e.target.getBoundingClientRect()
+        posX.value = e.clientX - pos.left + 'px'
+        posY.value = e.clientY - pos.top + 'px'
+        requestPanelIsOn.value = true
+      }
+     
       
     }
 
     const goBack  = () => {
-      console.log('eroc')
       router.push( { name: 'EspacePerso'} )
     } 
 
@@ -80,21 +129,22 @@ export default {
         document.value = doc.data()
         title.value = document.value.title
         description.value = document.value.description
+        cardBundle.value = doc.data().cardList
         } else{
         console.log('it prints here')
       }
     })
 
-    const check = () => {
-      console.log(title.value, description.value )
-    }
+    
 
-    return { document, check, title, goBack, requestNewCard, requestPanelIsOn, left, top, newCardTitle, newCardNote, typeOfNewCard }
+    return { document, title, goBack, requestNewCard, requestPanelIsOn, 
+    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, cardBundle }
   }
 }
 </script>
 
 <style scoped>
+
 .tool-box{
   padding: 1vh 0 1vh 5vw;
   background-color: rgb(120, 255, 203);
@@ -130,10 +180,11 @@ export default {
 .close-btn-request:hover{
   cursor: pointer;
 }
-.test{
-  width: 400px;
-  height: 400px;
-  background-color: red;
-}
 
+.card{
+  background-color: white;
+}
+.card:active{
+  cursor: grabbing;
+}
 </style>

@@ -16,34 +16,9 @@ const getDocument = (collRef, docRef) => {
 
 //     document.value = tempDoc.list
 
-
-
-
-
-
-
-
-
-    
-
   const unsub = projectFirestore.collection(collRef).doc(docRef).onSnapshot((doc) => {
- 
-    
     let tempDoc = doc.data()
-
-    console.log(tempDoc.list)
-
-
-
     document.value = tempDoc.list
-
-
-
-
-
-
-    
-    console.log(document.value.list)
     error.value = null
   }, err => {
     console.log(err.message)
