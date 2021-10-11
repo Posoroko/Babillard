@@ -14,7 +14,7 @@
                 <button v-else @click="createBab">créer</button>
             </div>
         </div>
-        <div class="page color" v-if="page=='color'">
+        <div class="page wallpaper" v-if="page=='color'">
 
         </div>
         
@@ -123,7 +123,7 @@ export default {
 .page{
     width: 100%;
 }
-.color{
+.wallpaper{
     
 }
 .type-tile{

@@ -15,17 +15,20 @@
     <section class="work-area" v-if="component == 'home'">
        
         <div v-if="error" class="error">Nous n'avons pas pu récupérer vos babillards... Il semble y avoir un problème de connexion</div>
-        <div v-if="document" class="babillard-box">
+        <div v-if="document" class="babillard-box parent3d">
             
-            <div class="babi-tile pointer " v-for="babi in document" :key="babi.id">
-                <router-link class="full babi-link lift" :to="{ name: 'Babillard', params: { id: babi.id} }">
+            <div class="tile pointer lift" v-for="babi in document" :key="babi.id">
+                <router-link class="full babi-link " :to="{ name: 'Babillard', params: { id: babi.id} }">
                     <h3>{{ babi.title }}</h3>
                     <p>{{ babi.description }}</p>
                 </router-link>
             </div>
           
-            <div class="add-one pointer lift" @click="goToNewBab">
-              +
+            <div class="add-one pointer tile lift" >
+              <div class="full" @click="goToNewBab">
+                +
+              </div>
+              
             </div>
         </div>
     </section>
@@ -103,33 +106,30 @@ header, .tool-bar{
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  transform-style: preserve-3d;
+}
+.tile{
+   width: 250px;
+  height: 200px;
+  border-radius: 25px;
+  margin: 10px;
 }
 
-.lift:hover{
-  box-shadow: 1px 2px 5px rgba(50,50,50,0.5);
-  transform: translateZ(1px);
-}
 .babi-link{
-  width: 250px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
   background-color: var(--secondary);
   padding: 20px;
   border-radius: 25px;
-  margin: 10px;
-  transition: all ease 300ms;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
 
-
-.add-one{
+.add-one div{
   width: 250px;
   height: 200px;
   background-color: var(--secondary);
   border-radius: 25px;
-  margin: 10px;
   transition: all ease 300ms;
   font-size: 100px;
   color: white;
@@ -137,12 +137,4 @@ header, .tool-bar{
   place-items: center;
 }
 
-tool-bar h1{
-    padding: 20px 0 20px 5vw;
-}
-
-
-.close-btn:hover{
-    cursor: pointer;
-}
 </style>
