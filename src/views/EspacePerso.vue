@@ -31,7 +31,17 @@
               
             </div>
         </div>
+        <div class="width flex-row-centered" v-else>
+        <div class="add-one pointer tile lift" >
+            <div class="full" @click="goToNewBab">
+                +
+            </div>
+              
+        </div>
+    </div>
     </section>
+    
+    
     <div v-if="component == 'new'" >
       <NewBab />
     </div>

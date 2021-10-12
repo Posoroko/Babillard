@@ -7,6 +7,7 @@
   --primary: #4f515a;
   --secondary: #ebebeb;
   --warning: #da0f41;
+  --funky: #146592;
   user-select: none;
 }
 .eric{
@@ -161,7 +162,7 @@ input, textarea {
 }
 .lift:hover{
   box-shadow: 1px 2px 10px rgba(50,50,50,0.5);
-  transform: translatZ(10px);
+  transform: translatZ(15px);
 }
 .tile{
   width: 250px;
@@ -177,4 +178,8 @@ input, textarea {
 }
 .absolute{
   position: absolute;
+}
+
+.selected, .plus{
+  outline: 7px double var(--funky);
 }

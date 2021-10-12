@@ -1,14 +1,14 @@
 <template>
-  <section class="auth-section" @submit.prevent="handleSubmit">
+  <section class="auth-section full">
       
-      <form class="login-form">
-        <h1 class="title login-title">Connectez-vous à votre babillard</h1>
-      <input type="email" placeholder="adresse courriel" v-model="email">
-      <input type="password" placeholder="mot de passe" v-model="password">
-      <div v-if="error" class="error">{{ error }}</div>
-      <button class="submit-login" v-if="!isPending">connexion</button>
-      <button class="submit-login" v-if="isPending" disabbled>patientez...</button>
-  </form>
+        <form class="login-form" @submit.prevent="handleSubmit">
+            <h1 class="title login-title">Connectez-vous à votre babillard</h1>
+            <input type="email" placeholder="adresse courriel" v-model="email">
+            <input type="password" placeholder="mot de passe" v-model="password">
+            <div v-if="error" class="error">{{ error }}</div>
+            <button class="submit-login" v-if="!isPending">connexion</button>
+            <button class="submit-login" v-if="isPending" disabbled>patientez...</button>
+        </form>
   </section>
 </template>
 

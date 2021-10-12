@@ -6,6 +6,15 @@
             <div class="full" v-if="page==='info'">
                 <input type="text" required placeholder="Titre"  v-model="title">
                 <textarea name="description" id="description" cols="30" rows="3" placeholder="Description du babillard" v-model="description"></textarea>
+                <h3>sécurité de votre babillard</h3>
+                <div class="type-box">
+                    <div class="small-tile lift type pointer access" :class="{ 'selected plus': (isPublic === false)}" id="priv" @click="setAccess"><h3>privé</h3>
+                        <p>seulement vous y avez accès</p>
+                    </div>
+                    <div class="small-tile lift type pointer" :class="{ 'selected plus': (isPublic === true )}" id="pub" @click="setAccess"><h3>publique</h3>
+                        <p>accessible à tous </p>
+                    </div>
+                </div>
                 <div class="nav-btn-box"><span class="nav-btn" @click="nextPage">arrow_forward</span></div>
             </div>
 
@@ -13,8 +22,9 @@
                 <div class="choose-type">
                 <h3>Quel type de babillard voulez-vous créer?</h3>
                 <div class="type-box">
-                    <div class="small-tile lift type pointer" @click="type='toile'">classique</div>
-                    <div class="small-tile lift type pointer" @click="type='toile'">liste</div>
+                    <div class="small-tile lift type pointer" id="classique" @click="setType" :class="{ 'selected plus': (type === 'classique')}">classique</div>
+                    <div class="small-tile lift type pointer" id="liste" @click="setType" :class="{ 'selected plus': (type === 'liste')}">liste</div>
+                    <div class="small-tile lift type pointer" id="ordonné" @click="setType" :class="{ 'selected plus': (type === 'ordonné')}">ordonné</div>
                 </div>
                 <div class="nav-btn-box"><span class="nav-btn" @click="nextPage">arrow_forward</span></div>
             </div>
@@ -23,29 +33,31 @@
                 <div><span class="nav-btn" @click="page='image'">arrow_back</span></div>
                 <h3>Choisissez une couleur</h3>
                 <div class="background-box">
-                    <div    class="color-sample small-tile lift pointer" 
-                            v-for="color in colorSamples" 
-                            :id="color" 
-                            :key="color" 
-                            :style="{backgroundColor: color }"
+                    <div    v-for="col in colorSamples"
+                            class="col-sample small-tile lift pointer" 
+                            :class="{ 'selected plus': (color == col.color)}"
+                            :id="col.color" 
+                            :key="col.color" 
+                            :style="{backgroundColor: col.color }"
                             @click="chooseColor">
                     </div>
-                    
+                    <span class="nav-btn auto-left" @click="createBab">save</span>
                 </div>
             </div>
             <div class="full" v-if="page === 'images'">
                 <div><span class="nav-btn" @click="page='image'">arrow_back</span></div>
                 <h3>Choisissez une image</h3>
                 <div class="background-box">
-                    <div    class="wallpaper-sample small-tile lift pointer" 
-                            v-for="image in wallpaperSamples" 
+                    <div    v-for="image in wallpaperSamples"    
+                            class="wallpaper-sample small-tile lift pointer" 
+                            :class="{ 'selected plus': (wallpaper === image.title)}"
                             :id="image.title" 
                             :key="image.title" 
                             :data-url="image.adress"
-                            @click="chooseColor">
+                            @click="chooseWallpaper">
                             <img :src="image.miniature" :alt="image.title" class="width">
                     </div>
-                    
+                    <span class="nav-btn auto-left" @click="createBab">save</span>
                 </div>
             </div>
 
@@ -104,9 +116,11 @@ export default {
         const title = ref('')
         const description = ref('')
         const type = ref('')
-        const wallpaper = ref('')
-        const color = ref('')
+        const wallpaper = ref(null)
+        const color = ref(null)
         const isPublic = ref(false)
+        const newBabId = ref(null)
+
 
         const formError = ref(null)
         const { user } = getUser()
@@ -125,11 +139,28 @@ export default {
                 page.value = 'image'
             }
         }
+
+        const setAccess = (e) => {
+            switch(e.currentTarget.id){
+                case 'priv': isPublic.value = false
+                break
+                case 'pub': isPublic.value = true
+            }
+            console.log(isPublic.value)
+        }
+        const setType = (e) => {
+            type.value = e.currentTarget.id
+        }
         const chooseColor = (e) => {
+            wallpaper.value = null
             color.value = e.currentTarget.id
+            console.log(color.value === e.currentTarget.id)
+            
         }
         const chooseWallpaper = (e) => {
+            color.value = null
             wallpaper.value = e.currentTarget.id
+            console.log(e.currentTarget.id, wallpaper.value)
         }
        
         
@@ -150,12 +181,17 @@ export default {
                 const babToBeAdded = 
                 isPending.value = true
                 let time = Date.now().toString()
+                newBabId.value = time
+
                 await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(time).set({
                     title: title.value,
                     description: description.value,
                     type: type.value,
                     user: user.value.uid,
                     userName: user.value.displayName,
+                    bgColor: color.value,
+                    wallpaper: wallpaper.value,
+                    isPublic: isPublic.value,
                     content: {
 
                     },
@@ -174,7 +210,7 @@ export default {
                     title.value = ''
                     description.value = ''
                     error.value= null
-                    router.push( { name: 'EspacePerso'} )
+                    router.push( { name: 'Babillard', params: { id: newBabId.value} } )
                 }
                 
             } else{
@@ -203,7 +239,8 @@ export default {
 
 
 
-        return { createBab, title, description, formError, type, isPending, page, nextPage, wallpaperSamples, colorSamples, chooseColor, chooseWallpaper, wallpaper }
+        return { createBab, title, description, formError, type, isPending, 
+        page, nextPage, wallpaperSamples, colorSamples, chooseColor, chooseWallpaper, wallpaper, newBabId, setAccess, setType, color, isPublic }
     }
 }
 </script>
@@ -226,7 +263,6 @@ export default {
     
 }
 .option-box{
-    border: 1px solid red;
     border-radius: 15px;
     margin: 10px;
     display: flex;
@@ -255,6 +291,9 @@ export default {
 }
 .type-tile:hover{
     cursor: pointer;
+}
+.access{
+    padding: 20px;
 }
 h3{
     padding: 20px;

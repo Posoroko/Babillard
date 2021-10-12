@@ -20,7 +20,6 @@ export default{
 <style scoped>
 #content{
   /* min-height: 100vh; */
-  border: 1px solid green;
   height: 100%;
 }
 
