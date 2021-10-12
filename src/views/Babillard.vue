@@ -7,11 +7,11 @@
     </div>
     <div class="babillard full parent3d" id="babillard" @dblclick="requestNewCard" @mousemove="moving" @mouseup="letGo">
 
-      <div  class="tile pointer lift absolute card" 
+      <div  class="tile pointer lift card" 
         v-for="card in cardBundle" 
         :id="card.id"
         :key="card.id" 
-        :style="{left: card.posX, top: card.posY }" 
+        
         @mousedown="selectCard" >
         <h3>{{ card.title }}</h3>
         <p>{{ card.content }}</p>        
@@ -56,6 +56,7 @@ export default {
   props: [ 'id' ],
   setup(props){
     
+    /* code pour un babillard position absolute   :style="{left: card.posX, top: card.posY }"  */ 
     const { user } = getUser()
     const document = ref(null)
     const cardBundle = ref(null)
@@ -75,7 +76,7 @@ export default {
     const createNewCard = async () => {
       let time = Date.now().toString()
       const newCard = {
-        tile: newCardTitle.value,
+        title: newCardTitle.value,
         type: newCardType.value,
         content: newCardContent.value,
         id: time,
@@ -94,7 +95,6 @@ export default {
             tempDoc.push(newCard)
             projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: tempDoc}).then(()=> {
               cardBundle.value = tempDoc
-              console.log(cardList.value)
             })
 
             } else {
@@ -102,8 +102,11 @@ export default {
             projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({cardList: newArr})
             cardBundle.value = newArr
           }
-          
-          
+          newCardTitle.value = null
+          newCardType.value = null
+          newCardContent.value = null
+          posX.value = null
+          posY.value = null
         })
       }
     
@@ -157,6 +160,10 @@ export default {
   height: 100%;
   background-color: rgb(196, 245, 226);
   position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
 }
 .requestPanel{
   width: 400px;
@@ -165,6 +172,7 @@ export default {
   background-color: white;
   position: absolute;
   transform: translate(-50%, -50%);
+  z-index: 10000;
 }
 .new-card-title{
   font-size: 16px;

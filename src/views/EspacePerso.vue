@@ -14,7 +14,7 @@
 
     <section class="work-area" v-if="component == 'home'">
        
-        <div v-if="error" class="error">Nous n'avons pas pu récupérer vos babillards... Il semble y avoir un problème de connexion</div>
+        <div v-if="error" class="error">{{error}}</div>
         <div v-if="document" class="babillard-box parent3d">
             
             <div class="tile pointer lift" v-for="babi in document" :key="babi.id">

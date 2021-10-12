@@ -18,12 +18,19 @@ const getDocument = (collRef, docRef) => {
 
   const unsub = projectFirestore.collection(collRef).doc(docRef).onSnapshot((doc) => {
     let tempDoc = doc.data()
-    document.value = tempDoc.list
+    if(doc.data()){
+      document.value = tempDoc.list
+    }
     error.value = null
   }, err => {
     console.log(err.message)
     document.value = null
-    error.value = 'could not fetch the data'
+    if(err.message == 'Missing or insufficient permissions.'){
+      error.value = "Vous n'avez pas le droit d'accès à ces données"
+    } else {
+      error.value = err.message
+    }
+    
   })
 
   watchEffect((onInvalidate) => {

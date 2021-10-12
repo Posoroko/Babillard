@@ -2,7 +2,7 @@
   <div class="home full">
     <div class="content">
       <FullLogo />
-      <h1>Créer, organier et partager vos idées</h1>
+      <h1>Créer, organiser et partager vos idées</h1>
       <div class="width">
         <router-link class="big-btn lift" :to="{ name: 'Signup'}">créer un compte</router-link>
         <router-link class="big-btn lift" :to="{ name: 'Login'}">connexion</router-link>
