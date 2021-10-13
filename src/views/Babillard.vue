@@ -8,12 +8,18 @@
 
 <!-- Babillard     --> 
 
-    <div class="babillard full parent3d" id="babillard" @dblclick="requestNewCard" @mousemove="moving" @mouseup="letGo"
+    <div class="babillard width parent3d" id="babillard" 
+          @dblclick="requestNewCard" 
+          @mousemove="moving" 
+          @click="babiHeight"
+          @mouseup="letGo"
+          ref="babi_div"
           :style="{ 
             backgroundImage: 'url(' + wallpaper + ')',
             backgroundSize: 'cover',
             backgroundPosition: 'center',
-            backgroundColor: color
+            backgroundColor: color,
+            height: babiHeight + 'px',
           }" >
 
 
@@ -38,7 +44,7 @@
         <div class="newCardType full flex column" v-if="page === 'type'">
             <div class="flex width">
                 <div class="nav-btn nav-btn_box">
-                    <span class="nav-btn nav-btn-on pointer"  @click="createBab">close</span>
+                    <span class="nav-btn nav-btn-on pointer" @click="requestPanelIsOn = false">close</span>
                 </div>
             </div>
 
@@ -117,6 +123,10 @@ export default {
     const posY = ref()
     const id = ref(props.id)
 
+    const babi_div = ref(null)
+
+    const babiHeight = ref(null)
+
     
 
 
@@ -162,8 +172,16 @@ export default {
     const requestNewCard = (e) => {
       if(!requestPanelIsOn.value){
         var pos =e.target.getBoundingClientRect()
-        posX.value = e.clientX - pos.left + 'px'
-        posY.value = e.clientY - pos.top + 'px'
+        if(e.clientX - pos.left < 200) {
+          posX.value = '200px'
+        } else {
+          posX.value = e.clientX - pos.left + 'px'
+        }
+        if(e.clientY - pos.top < 200) {
+          posY.value = '200px'
+        } else {
+          posY.value = e.clientY - pos.top + 'px'
+        }
         requestPanelIsOn.value = true
         page.value = 'type'
       }
@@ -184,6 +202,7 @@ export default {
         color.value = doc.data().value
         wallpaper.value = doc.data().wallpaper
         miniature.value = doc.data().miniature
+        babiHeight.value = window.innerHeight - babi_div.value.offsetTop
         } else{
         console.log('it prints here')
       }
@@ -192,7 +211,7 @@ export default {
     
 
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
-    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, cardBundle, page, wallpaper, miniature, color, type }
+    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, cardBundle, page, wallpaper, miniature, color, type, babi_div, babiHeight }
   }
 }
 </script>
@@ -207,13 +226,12 @@ export default {
 }
 
 .babillard{
-  width: 100%;
-  height: 100%;
   position: relative;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
+  overflow: auto;
 }
 .requestPanel{
   width: 400px;

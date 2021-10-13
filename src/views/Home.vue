@@ -3,8 +3,8 @@
     <div class="content">
       <FullLogo />
       <h1>Créer, organiser et partager vos idées</h1>
-      <div   class="who-is-connected flex JC-center">Vous êtes connecté en tant que {{user.displayName}}</div>
-      <div class="width" >
+      <div v-if="user" class="who-is-connected flex JC-center">Vous êtes connecté en tant que {{user.displayName}}</div>
+      <div v-else class="width" >
         <router-link class="big-btn lift" :to="{ name: 'Signup'}">créer un compte</router-link>
         <router-link class="big-btn lift" :to="{ name: 'Login'}">connexion</router-link>
       </div>
