@@ -3,6 +3,7 @@
     <div class="form">
         <div class="page main">
 
+<!-- page = title     -->
             <div class="full" v-if="page==='info'">
                 <input type="text" required placeholder="Titre"  v-model="title">
                 <textarea name="description" id="description" cols="30" rows="3" placeholder="Description du babillard" v-model="description"></textarea>
@@ -15,10 +16,23 @@
                         <p>accessible à tous </p>
                     </div>
                 </div>
-                <div class="nav-btn-box"><span class="nav-btn" @click="nextPage">arrow_forward</span></div>
+                
+                <div class="flex width">
+                    <div class="nav-btn_box auto-left">
+                        <span class="nav-btn pointer" :class="{ 'nav-btn-on': (title), 'nav-btn-off': (!title)}" @click="page='type'">arrow_forward</span>
+                    </div>
+                </div>
             </div>
 
+<!-- page = type     -->
+            
+
             <div class="full" v-if="page==='type'">
+                <div class="flex width">
+                <div class="nav-btn_box">
+                    <span class="nav-btn nav-btn-on pointer"  @click="page='info'">arrow_back</span>
+                </div>
+                </div>
                 <div class="choose-type">
                 <h3>Quel type de babillard voulez-vous créer?</h3>
                 <div class="type-box">
@@ -26,11 +40,49 @@
                     <div class="small-tile lift type pointer" id="liste" @click="setType" :class="{ 'selected plus': (type === 'liste')}">liste</div>
                     <div class="small-tile lift type pointer" id="ordonné" @click="setType" :class="{ 'selected plus': (type === 'ordonné')}">ordonné</div>
                 </div>
-                <div class="nav-btn-box"><span class="nav-btn" @click="nextPage">arrow_forward</span></div>
+                
+                <div class="flex width">
+                    <div class="nav-btn_box auto-left">
+                        <span class="nav-btn nav-btn-on pointer"  @click="page='thème'">arrow_forward</span>
+                    </div>
+                </div>
             </div>
             </div>
+
+<!-- page = thème     -->
+            <div class="full" v-if="page==='thème'">
+                <div class="flex width">
+                    <div class="nav-btn_box">
+                        <span class="nav-btn nav-btn-on pointer"  @click="page='type'">arrow_back</span>
+                    </div>
+                </div>
+                <h3>images et couleurs</h3>
+                <div class="option-box width lift pointer" id="couleurs" @click="page='couleurs'">
+                    <h1 class="option-title">couleurs unies</h1>
+                    <span class="nav-btn nav-btn auto-left">folder_open navigate_next</span>
+                </div>
+
+
+                <div class="option-box width lift pointer" id="images" @click="page='images'">
+                    <h1 class="option-title">images</h1>
+                    <span class="nav-btn nav-btn auto-left">folder_open navigate_next</span>
+                </div>
+                
+
+
+                <div v-if="formError" class="error width flex"><span class="auto-left">{{ formError }}</span></div>
+                <div class="nav-btn-box flex">
+                    <span v-if="isPending" class="nav-btn nav-btn-on auto-left">loop</span>
+                </div>
+            </div>
+
+<!-- page = couleur     -->
             <div class="full" v-if="page === 'couleurs'">
-                <div><span class="nav-btn" @click="page='image'">arrow_back</span></div>
+                <div class="flex width">
+                    <div class="nav-btn_box">
+                        <span class="nav-btn nav-btn-on pointer"  @click="page='thème'">arrow_back</span>
+                    </div>
+                </div>
                 <h3>Choisissez une couleur</h3>
                 <div class="background-box">
                     <div    v-for="col in colorSamples"
@@ -42,51 +94,39 @@
                             @click="chooseColor">
                     </div>
                     <div class="flex width">
-                        <div class="nav-btn_box auto-left">
-                                <span class="nav-btn pointer"  @click="createBab">save navigate_next</span>
+                        <div class="nav-btn nav-btn_box auto-left">
+                                <span class="nav-btn nav-btn-on pointer"  @click="createBab">save navigate_next</span>
                         </div>
                     </div>
                 </div>
             </div>
+
+<!-- page = images     -->
             <div class="full" v-if="page === 'images'">
-                <div><span class="nav-btn" @click="page='image'">arrow_back</span></div>
+                <div class="flex width">
+                    <div class="nav-btn_box">
+                        <span class="nav-btn nav-btn-on pointer"  @click="page='thème'">arrow_back</span>
+                    </div>
+                </div>
                 <h3>Choisissez une image</h3>
                 <div class="background-box">
                     <div    v-for="image in wallpaperSamples"    
                             class="wallpaper-sample small-tile lift pointer" 
                             :class="{ 'selected plus': (wallpaper === image.title)}"
                             :id="image.title" 
-                            :key="image.title" 
-                            :data-url="image.adress"
+                            :key="image.miniature" 
                             @click="chooseWallpaper">
                             <img :src="image.miniature" :alt="image.title" class="width">
                     </div>
                     <div class="flex width">
-                        <span class="nav-btn pointer"  @click="createBab">save navigate_next</span>
+                        <div class="nav-btn nav-btn_box auto-left">
+                                <span class="nav-btn nav-btn-on pointer"  @click="createBab">save navigate_next</span>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="full" v-if="page==='image'">
-                <h3>images et couleurs</h3>
-                <div class="option-box width lift pointer" id="couleurs" @click="page='couleurs'">
-                    <h1 class="option-title">couleurs unies</h1>
-                    <span class="nav-btn auto-left">folder_open navigate_next</span>
-                </div>
 
-
-                <div class="option-box width lift pointer" id="images" @click="page='images'">
-                    <h1 class="option-title">images</h1>
-                    <span class="nav-btn auto-left">folder_open navigate_next</span>
-                </div>
-                
-
-
-                <div v-if="formError" class="error width flex"><span class="auto-left">{{ formError }}</span></div>
-                <div class="nav-btn-box flex">
-                    <span v-if="isPending" class="nav-btn auto-left">loop</span>
-                </div>
-            </div>
 
 
 
@@ -122,6 +162,7 @@ export default {
         const description = ref('')
         const type = ref('')
         const wallpaper = ref(null)
+        const miniature = ref(null)
         const color = ref(null)
         const isPublic = ref(false)
         const newBabId = ref(null)
@@ -136,14 +177,7 @@ export default {
         const colorSamples = ref(null)
         const page = ref('info')
 
-        const nextPage = (e) => {
-            console.log(colorSamples.value)
-            if(page.value === 'info' && title.value){
-                page.value = 'type'
-            } else if (page.value == 'type' && type.value) {
-                page.value = 'image'
-            }
-        }
+        
 
         const setAccess = (e) => {
             switch(e.currentTarget.id){
@@ -160,12 +194,14 @@ export default {
             wallpaper.value = null
             color.value = e.currentTarget.id
             console.log(color.value === e.currentTarget.id)
-            
         }
         const chooseWallpaper = (e) => {
             color.value = null
-            wallpaper.value = e.currentTarget.id
-            console.log(e.currentTarget.id, wallpaper.value)
+            const obj = wallpaperSamples.value.filter((f) => {      //filter to find the two adresses
+                return f.title === e.currentTarget.id
+            })
+            wallpaper.value = obj[0].adress
+            miniature.value = obj[0].miniature
         }
        
         
@@ -173,6 +209,7 @@ export default {
             if(doc.data()){
                wallpaperSamples.value = doc.data().wallPaperList
            }
+
         })
         projectFirestore.collection('appData').doc('wallPapers').get().then((doc) => {
             if(doc.data()){
@@ -191,11 +228,12 @@ export default {
                 await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(time).set({
                     title: title.value,
                     description: description.value,
+                    wallpaper: wallpaper.value,
+                    miniature: miniature.value,
+                    color: color.value,
                     type: type.value,
                     user: user.value.uid,
                     userName: user.value.displayName,
-                    bgColor: color.value,
-                    wallpaper: wallpaper.value,
                     isPublic: isPublic.value,
                     content: {
 
@@ -245,7 +283,7 @@ export default {
 
 
         return { createBab, title, description, formError, type, isPending, 
-        page, nextPage, wallpaperSamples, colorSamples, chooseColor, chooseWallpaper, wallpaper, newBabId, setAccess, setType, color, isPublic }
+        page, wallpaperSamples, colorSamples, chooseColor, chooseWallpaper, wallpaper, miniature, color, newBabId, setAccess, setType, color, isPublic }
     }
 }
 </script>
@@ -289,10 +327,9 @@ export default {
     place-items: center;
 }
 .type:hover{
-    color: white;
-    background-color: var(--funky);
     cursor: pointer;
 }
+
 .access{
     padding: 20px;
 }

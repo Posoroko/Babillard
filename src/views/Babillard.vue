@@ -1,17 +1,28 @@
 <template>
     <div class="tool-box">
-        <span class="nav-btn" @click="goBack">arrow_back</span>
+      <div class="nav-btn_box">
+          <span class="nav-btn nav-btn-on pointer"  @click="goBack">arrow_back</span>
+      </div>
         <h1>{{title}}</h1>
-      
-      
     </div>
-    <div class="babillard full parent3d" id="babillard" @dblclick="requestNewCard" @mousemove="moving" @mouseup="letGo">
 
+<!-- Babillard     --> 
+
+    <div class="babillard full parent3d" id="babillard" @dblclick="requestNewCard" @mousemove="moving" @mouseup="letGo"
+          :style="{ 
+            backgroundImage: 'url(' + wallpaper + ')',
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundColor: color
+          }" >
+
+
+
+<!-- cards     --> 
       <div  class="tile pointer lift card" 
         v-for="card in cardBundle" 
         :id="card.id"
         :key="card.id" 
-        
         @mousedown="selectCard" >
         <h3>{{ card.title }}</h3>
         <p>{{ card.content }}</p>        
@@ -19,37 +30,49 @@
 
        
       
+
       <transition name="fade">  
         <div class="requestPanel lift" v-if="requestPanelIsOn" :style="{left: posX, top: posY }"  key="1">
-          
+
+<!-- page = type     -->             
         <div class="newCardType full flex column" v-if="page === 'type'">
-            <span class="close-btn-request icons" @click="requestPanelIsOn = false">close</span>
-            <div class="new-card-title width">Quel type de carte voulez-vous créer</div>
-            <div class="grid-center">
-                <div  class="tiny-tile card-type pointer lift" 
-                    @click="newCardType = 'note'"
-                    :class="{ 'selected plus': (newCardType == 'note')}"
-                    >note
+            <div class="flex width">
+                <div class="nav-btn nav-btn_box">
+                    <span class="nav-btn nav-btn-on pointer"  @click="createBab">close</span>
                 </div>
-                <div class="flex width">
-                    <span class="nav-btn pointer auto-left" @click="page = 'info'">arrow_forward</span>
-                </div>
-                    
             </div>
+
+         
+            <div class="new-card-title width">Quel type de carte voulez-vous créer</div>
+              <div class="grid-center">
+                  <div  class="tiny-tile card-type pointer lift" 
+                      @click="newCardType = 'note'"
+                      :class="{ 'selected plus': (newCardType == 'note')}"
+                      >note
+                  </div>
+                  <div class="flex width">
+                      <div class="nav-btn nav-btn_box auto-left">
+                          <span class="nav-btn nav-btn-on pointer"  @click="page='info'">arrow_forward</span>
+                      </div>
+                  </div>     
+              </div>
         </div>
 
-
+<!-- page = info     -->   
         <div class="newNote" v-if="page === 'info'">
-            
             <div class="flex width">
-                <span class="nav-btn pointer" @click="page='type'">arrow_back</span>
-            </div>
+                <div class="nav-btn nav-btn_box">
+                    <span class="nav-btn nav-btn-on pointer"  @click="page='type'">arrow_back</span>
+                </div>
+            </div>    
             <h1>Créer une nouvelle note</h1>
             <input class="new-card-input" type="text" v-model="newCardTitle" placeholder="Titre">
             <textarea cols="5" rows="5" placeholder="notez ici vos idées..." v-model="newCardContent"></textarea>
-            <div class="flex width nav-btn-box eric">
-                <span class="nav-btn pointer auto-left"  @click="createNewCard">save</span>
-            </div>
+            <div class="flex width">
+                <div class="nav-btn nav-btn_box auto-left">
+                    <span class="nav-btn nav-btn-on pointer"  @click="createNewCard">save navigate_next</span>
+                </div>
+            </div>  
         </div>
       
         </div>
@@ -73,10 +96,18 @@ export default {
     /* code pour un babillard position absolute   :style="{left: card.posX, top: card.posY }"  */ 
     const { user } = getUser()
     const document = ref(null)
+    const title = ref(null)
+    const description = ref(null)
+    const wallpaper = ref(null)
+    const miniature = ref(null)
+    const color = ref(null)
     const cardBundle = ref(null)
+    const type = ref(null)
+
+
+    
     const page = ref(null)
-    const title = ref()
-    const description = ref()
+    
     const router = useRouter()
     const requestPanelIsOn = ref(false)
     const newCardTitle = ref('')
@@ -86,6 +117,7 @@ export default {
     const posY = ref()
     const id = ref(props.id)
 
+    
 
 
     const createNewCard = async () => {
@@ -146,9 +178,12 @@ export default {
     projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(props.id).get().then((doc) => {
       if(doc.exists){
         document.value = doc.data()
-        title.value = document.value.title
-        description.value = document.value.description
-        cardBundle.value = doc.data().cardList
+        title.value = doc.data().title
+        description.value = doc.data().description
+        type.value = doc.data().type
+        color.value = doc.data().value
+        wallpaper.value = doc.data().wallpaper
+        miniature.value = doc.data().miniature
         } else{
         console.log('it prints here')
       }
@@ -157,7 +192,7 @@ export default {
     
 
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
-    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, cardBundle, page }
+    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, cardBundle, page, wallpaper, miniature, color, type }
   }
 }
 </script>
@@ -166,7 +201,7 @@ export default {
 
 .tool-box{
   padding: 1vh 0 1vh 5vw;
-  background-color: rgb(120, 255, 203);
+  background-color: rgb(255, 192, 120);
   display: flex;
   align-items: center;
 }
@@ -174,7 +209,6 @@ export default {
 .babillard{
   width: 100%;
   height: 100%;
-  background-color: rgb(196, 245, 226);
   position: relative;
   display: flex;
   flex-wrap: wrap;
