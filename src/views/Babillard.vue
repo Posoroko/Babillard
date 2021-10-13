@@ -22,20 +22,34 @@
       <transition name="fade">  
         <div class="requestPanel lift" v-if="requestPanelIsOn" :style="{left: posX, top: posY }"  key="1">
           
-        <div class="newCardType" v-if="newCardType === null">
-          <span class="close-btn-request" @click="requestPanelIsOn = false">close</span>
-          <h1 class="new-card-title">Quel type de carte voulez-vous créer</h1>
-          <div class="btn-box flex-row-centered">
-            <button @click="newCardType = 'note'">note</button>
-          </div>
-
+        <div class="newCardType full flex column" v-if="page === 'type'">
+            <span class="close-btn-request icons" @click="requestPanelIsOn = false">close</span>
+            <div class="new-card-title width">Quel type de carte voulez-vous créer</div>
+            <div class="grid-center">
+                <div  class="tiny-tile card-type pointer lift" 
+                    @click="newCardType = 'note'"
+                    :class="{ 'selected plus': (newCardType == 'note')}"
+                    >note
+                </div>
+                <div class="flex width">
+                    <span class="nav-btn pointer auto-left" @click="page = 'info'">arrow_forward</span>
+                </div>
+                    
+            </div>
         </div>
-        <div class="newNote" v-if="newCardType === 'note'">
-          <div class="close-btn-request-box"><span class="close-btn-request" @click="newCardType =  null">arrow_back</span></div>
-          <h1>Créer une nouvelle note</h1>
-          <input class="new-card-input" type="text" v-model="newCardTitle" placeholder="Titre">
-          <textarea cols="5" rows="5" placeholder="notez ici vos idées..." v-model="newCardContent"></textarea>
-          <button class="new-post-btn" @click="createNewCard">créer</button>
+
+
+        <div class="newNote" v-if="page === 'info'">
+            
+            <div class="flex width">
+                <span class="nav-btn pointer" @click="page='type'">arrow_back</span>
+            </div>
+            <h1>Créer une nouvelle note</h1>
+            <input class="new-card-input" type="text" v-model="newCardTitle" placeholder="Titre">
+            <textarea cols="5" rows="5" placeholder="notez ici vos idées..." v-model="newCardContent"></textarea>
+            <div class="flex width nav-btn-box eric">
+                <span class="nav-btn pointer auto-left"  @click="createNewCard">save</span>
+            </div>
         </div>
       
         </div>
@@ -60,6 +74,7 @@ export default {
     const { user } = getUser()
     const document = ref(null)
     const cardBundle = ref(null)
+    const page = ref(null)
     const title = ref()
     const description = ref()
     const router = useRouter()
@@ -118,6 +133,7 @@ export default {
         posX.value = e.clientX - pos.left + 'px'
         posY.value = e.clientY - pos.top + 'px'
         requestPanelIsOn.value = true
+        page.value = 'type'
       }
      
       
@@ -141,7 +157,7 @@ export default {
     
 
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
-    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, cardBundle }
+    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, cardBundle, page }
   }
 }
 </script>
@@ -167,8 +183,7 @@ export default {
 }
 .requestPanel{
   width: 400px;
-  height: 500px;
-  padding: 10px;
+  padding: 20px;
   background-color: white;
   position: absolute;
   transform: translate(-50%, -50%);
@@ -176,14 +191,21 @@ export default {
 }
 .new-card-title{
   font-size: 16px;
-  padding: 10px 0;
+  padding: 20px;
 }
-
-
-.close-btn-request{
-  font-family: 'Material Icons';
+.card-type{
+  display: grid;
+  place-items: center;
+  background-color: var(--secondary);
+}
+.type-next{
   font-size: 30px;
-  padding: 0px;
+  padding: 20px;
+  margin-left: auto;
+}
+.close-btn-request{
+  font-size: 30px;
+  padding: 20px;
 }
 .close-btn-request:hover{
   cursor: pointer;
@@ -191,6 +213,8 @@ export default {
 
 .card{
   background-color: white;
+  
+  padding: 20px;
 }
 .card:active{
   cursor: grabbing;

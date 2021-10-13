@@ -34,14 +34,18 @@
                 <h3>Choisissez une couleur</h3>
                 <div class="background-box">
                     <div    v-for="col in colorSamples"
-                            class="col-sample small-tile lift pointer" 
+                            class="col-sample tiny-tile lift pointer" 
                             :class="{ 'selected plus': (color == col.color)}"
                             :id="col.color" 
                             :key="col.color" 
                             :style="{backgroundColor: col.color }"
                             @click="chooseColor">
                     </div>
-                    <span class="nav-btn auto-left" @click="createBab">save</span>
+                    <div class="flex width">
+                        <div class="nav-btn_box auto-left">
+                                <span class="nav-btn pointer"  @click="createBab">save navigate_next</span>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="full" v-if="page === 'images'">
@@ -57,7 +61,9 @@
                             @click="chooseWallpaper">
                             <img :src="image.miniature" :alt="image.title" class="width">
                     </div>
-                    <span class="nav-btn auto-left" @click="createBab">save</span>
+                    <div class="flex width">
+                        <span class="nav-btn pointer"  @click="createBab">save navigate_next</span>
+                    </div>
                 </div>
             </div>
 
@@ -79,7 +85,6 @@
                 <div v-if="formError" class="error width flex"><span class="auto-left">{{ formError }}</span></div>
                 <div class="nav-btn-box flex">
                     <span v-if="isPending" class="nav-btn auto-left">loop</span>
-                    <span v-else class="nav-btn auto-left" @click="createBab">save</span>
                 </div>
             </div>
 
@@ -254,14 +259,7 @@ export default {
 .page{
     width: 100%;
 }
-.nav-btn-box{
-    width: 100%;
-    display: flex;
-}
-.nav-btn{
-    margin-left: auto;
-    
-}
+
 .option-box{
     border-radius: 15px;
     margin: 10px;
@@ -285,11 +283,14 @@ export default {
 }
 
 .type{
-  background-color: var(--secondary);
-  display: grid;
-  place-items: center;
+    font-size: 16px;
+    background-color: var(--secondary);
+    display: grid;
+    place-items: center;
 }
-.type-tile:hover{
+.type:hover{
+    color: white;
+    background-color: var(--funky);
     cursor: pointer;
 }
 .access{

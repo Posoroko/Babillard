@@ -13,6 +13,7 @@
 .eric{
   border: 1px solid red;
 }
+
 /* base styles  */
 * {
   margin: 0;
@@ -60,17 +61,33 @@ button:disabled {
   background: var(--secondary);
   cursor: not-allowed;
 }
+.nav-btn_box{
+  width: 125px;
+  height: 50px;
+  display: grid;
+  place-items: center; 
+}
 .nav-btn{
   font-family: 'Material Icons';
   font-size: 30px;
-  padding: 20px;
 }
 .nav-btn:hover{
+  font-size: 32px;
+
   cursor: pointer;
 }
 /* --- flex styles --- */ 
 .flex{
   display: flex;
+}
+.column{
+  flex-direction: column;
+}
+.JC-space-around{
+  justify-content: space-around;
+}
+.JC-space-between{
+  justify-content: space-between;
 }
 .flex-row-centered{
   display: flex;
@@ -82,6 +99,10 @@ button:disabled {
 }
 .auto-left{
   margin-left: auto;
+}
+.grid-center{
+  display: grid;
+  place-items: center;
 }
 
 /* forms */
@@ -174,6 +195,12 @@ input, textarea {
   width: 175px;
   height: 150px;
   border-radius: 25px;
+  margin: 10px;
+}
+.tiny-tile{
+  width: 100px;
+  height: 75px;
+  border-radius: 12px;
   margin: 10px;
 }
 .absolute{
