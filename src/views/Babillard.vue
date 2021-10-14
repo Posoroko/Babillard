@@ -25,13 +25,14 @@
 
 
 <!-- cards     --> 
-      <div  class="tile pointer lift card" 
+      <div  class=" pointer lift card" 
         v-for="card in cardBundle" 
         :id="card.id"
         :key="card.id" 
         @mousedown="selectCard" >
         <h3>{{ card.title }}</h3>
-        <p>{{ card.content }}</p>        
+        <p>{{ card.content }}</p>   
+        <div class="handle"></div>     
       </div>
 
        
@@ -52,10 +53,12 @@
             <div class="new-card-title width">Quel type de carte voulez-vous créer</div>
               <div class="grid-center">
                   <div  class="tiny-tile card-type pointer lift" 
-                      @click="newCardType = 'note'"
-                      :class="{ 'selected plus': (newCardType == 'note')}"
-                      >note
+                        @click="newCardType = 'note'" :class="{ 'selected plus': (newCardType == 'note')}">note
                   </div>
+                  <div  class="tiny-tile card-type pointer lift" 
+                        @click="newCardType = 'import'" :class="{ 'selected plus': (newCardType == 'import')}">importer un document
+                  </div>
+
                   <div class="flex width">
                       <div class="nav-btn nav-btn_box auto-left">
                           <span class="nav-btn nav-btn-on pointer"  @click="page='info'">arrow_forward</span>
@@ -264,11 +267,29 @@ export default {
 }
 
 .card{
+  width: 250px;
+  aspect-ratio: 5/4;
+  border-radius: 15px;
+  margin: 10px;
   background-color: white;
-  
+  position: relative;
   padding: 20px;
 }
 .card:active{
   cursor: grabbing;
 }
+.handle{
+  width: 3px;
+  height: 100%;
+  background-color: red;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+.handle:hover{
+  cursor: e-resize;
+}
+
+
+
 </style>

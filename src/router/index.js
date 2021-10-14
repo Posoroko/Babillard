@@ -4,7 +4,7 @@ import Login from '@/views/auth/Login.vue'
 import Signup from '@/views/auth/Signup'
 import EspacePerso from '@/views/EspacePerso'
 import Babillard from '@/views/Babillard'
-
+import Test from '@/views/auth/Test'
 
 //route guard
 import { projectAuth } from '@/firebase/config'
@@ -47,7 +47,12 @@ const routes = [
     name: 'Babillard',
     component: Babillard,
     props: true
-  }
+  },
+  {
+    path: '/test',
+    name: 'Test',
+    component: Test
+  },
 ]
 
 const router = createRouter({
