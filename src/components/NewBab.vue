@@ -118,11 +118,7 @@
                             @click="chooseWallpaper">
                             <img :src="image.miniature" :alt="image.title" class="width">
                     </div>
-                    <div class="flex width">
-                        <div class="nav-btn nav-btn_box auto-left">
-                                <span class="nav-btn nav-btn-on pointer"  @click="createBab">save navigate_next</span>
-                        </div>
-                    </div>
+                    
                 </div>
             </div>
 

@@ -1,5 +1,5 @@
 <template>
-  <section class="form">
+  <!-- <section class="form"> -->
     <h3>Importer une image</h3>
     <input class="input-file" type="file" @change="handleChange" ref="inputFile_input">
     <div class="select-box lift pointer"   @click="selectFile">
@@ -12,41 +12,50 @@
             
         </div>
         <span class="width selected-file-name" v-if="selectedFileName"> {{ selectedFileName }}</span>
-            <span class="width error" v-if="fileError">{{fileError}}</span>
+        <span class="width error" v-if="fileError">{{fileError}}</span>
 
     </div>
+    <input type="text" v-model="imageTitle" placeholder="titre">
     
    <div class="preview-box flex-row-centered pointer "  @click="selectFile">
       <div class="preview lift" ref="previewBox">
       
     </div>
    </div>
+   <textarea v-model="imageDescription" placeholder="description" rows="3"></textarea>
     <div class="flex width">
         <div class="nav-btn nav-btn_box auto-left">
-            <span class="nav-btn nav-btn-on pointer"  @click="saveFile">save navigate_next</span>
+            <span class="nav-btn nav-btn-on pointer"  @click="handleClick">save navigate_next</span>
         </div>
     </div>
     <div class="test"></div>
 
-  </section>
+  <!-- </section> -->
 </template>
 
 <script>
-import getUser from '@/composables/getUser'
+
 import getWidthandHeight from'@/composables/getWidhtAndHeight'
 
 import { ref } from 'vue'
 export default {
-  setup() {
-    const { user } = getUser()
+  setup(props, { emit }) {
+    
+    
+
     const selectedFile = ref(null)
     const selectedFileName = ref('')
     const miniature = ref(null)
+    const imageTitle = ref('')
+    const imageDescription = ref('')
+
     const fileError = ref('')
     const previewBox = ref(null)
     const width = ref(null)
     const height = ref(null)
     const inputFile_input = ref(null)
+    
+
     
 //allowed file types
 
@@ -76,7 +85,7 @@ export default {
         ctx.drawImage(img, 0, 0, width.value, height.value)
         canvas.toBlob((blob) => {
           miniature.value = blob
-          miniature.value.name = selectedFile.value.name + 'mini'
+          miniature.value.name = 'mini' + selectedFile.value.name
         }, "image/jpeg")
       }
       img.src = URL.createObjectURL(selectedFile.value)
@@ -85,14 +94,28 @@ export default {
     const selectFile = () => {
       inputFile_input.value.click()
     }
-    const saveFile = () => {
-      
+    const handleClick = () => {
+      if(miniature.value && selectedFile.value) {
+        emit('createImageCard', {
+          title: imageTitle.value,
+          content: imageDescription.value,
+          image: selectedFile.value,
+          miniature: miniature.value,
+          imageName: selectedFile.value.name,
+          miniName: miniature.value.name
+        })
+      }
+
+
+
     }
 
 
 
 
-    return { selectedFile, handleChange, fileError, previewBox, selectedFileName, selectFile, inputFile_input, saveFile }
+    return {  selectedFile, handleChange, fileError, previewBox, selectedFileName, 
+              selectFile, inputFile_input, handleClick, imageTitle, imageDescription, 
+             }
   }
 
 }
@@ -101,7 +124,6 @@ export default {
 <style scoped>
 .form{
     width: 400px;
-    background-color: var(--secondary);
     /* display: flex;
     flex-direction: column; */
 }
