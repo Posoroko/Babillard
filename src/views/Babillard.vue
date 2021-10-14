@@ -8,7 +8,7 @@
 
 <!-- Babillard     --> 
 
-    <div class="babillard width parent3d" id="babillard" 
+    <div class="babillard width" id="babillard" 
           @dblclick="requestNewCard" 
           @mousemove="moving" 
           @mouseup="letGo"
@@ -24,15 +24,27 @@
 
 
 <!-- cards     --> 
+    <div class="babillard full parent3d" v-if="cardBundle">
       <div  class=" pointer lift card" 
         v-for="card in cardBundle" 
         :id="card.id"
         :key="card.id" 
         @mousedown="selectCard" >
-        <h3>{{ card.title }}</h3>
-        <p>{{ card.content }}</p>   
-        <div class="handle"></div>     
+        <img v-if="card.type == 'import'" :src="card.miniUrl" class="full card-mini">
+
+        <div class="card-top-bar width flex JC-space-between">
+          <h3 class="card-info-border card-title">{{ card.title }}</h3>
+          <span class="card-info-border pointer card-settings"  @click="goToTypePage">tune</span>
+        </div>
+        
+        <p v-if="card.type == 'note'" class="full  note-content">{{ card.content }}</p>   
+        <p v-if="card.type == 'import'" class="card-info-border image-description">{{ card.content }}</p>   
+        <div class="handle"></div>    
+
+
       </div>
+    </div>
+      
 
        
       
@@ -67,7 +79,7 @@
         </div>
 
 <!-- page = info     -->   
-        <div class="newNote" v-if="page === 'info'">
+        <div class="newNote" v-if="page === 'note'">
             <div class="flex width">
                 <div class="nav-btn nav-btn_box">
                     <span class="nav-btn nav-btn-on pointer"  @click="page='type'">arrow_back</span>
@@ -196,13 +208,14 @@ export default {
           posX.value = null
           posY.value = null
         })
+        isPending.value = false
       }
     
     
 
     const requestNewCard = (e) => {
       if(!requestPanelIsOn.value){
-        var pos =e.target.getBoundingClientRect()
+        var pos =e.currentTarget.getBoundingClientRect()
         if(e.clientX - pos.left < 200) {
           posX.value = '250px'
         } else {
@@ -241,8 +254,9 @@ export default {
         wallpaper.value = doc.data().wallpaper
         miniature.value = doc.data().miniature
         babiHeight.value = window.innerHeight - babi_div.value.offsetTop
+        cardBundle.value = doc.data().cardList
         } else{
-        console.log('it prints here')
+
       }
     })
 
@@ -250,6 +264,7 @@ export default {
       // upload image and miniature to firebase.storage
       // emit an object containing the image informations
       //title, description, image and miniature
+      isPending.value = true
       await uploadImage(pathRef, pack.image)
       await uploadImage(pathRef, pack.miniature)
       newCardTitle.value = pack.title
@@ -264,7 +279,7 @@ export default {
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
     posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, 
     cardBundle, page, wallpaper, miniature, color, type, babi_div, babiHeight,
-    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage }
+    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending}
   }
 }
 </script>
@@ -323,10 +338,52 @@ export default {
   margin: 10px;
   background-color: white;
   position: relative;
-  padding: 20px;
+  padding: 8px;
 }
 .card:active{
   cursor: grabbing;
+}
+.card-info-border{
+  border: 1px solid var(--funky);
+}
+.card-title {
+  max-width: 80%;
+  font-size: 16px;
+  font-weight: 300;
+  background-color: white;
+  padding: 3px 5px;
+  border-radius: 0 0 10px 0;
+}
+.card-top-bar{
+  position: absolute;
+  top: 0;
+  left: 0;
+  
+}
+.card-settings{
+  font-family: 'Material Icons';
+  font-size: 20px;
+  background-color: white;
+  padding: 3px 5px;
+  border-radius: 0 0 0 10px;
+}
+.card-mini{
+  object-fit: cover;
+}
+.image-description{
+  max-width: 100%;
+  font-size: 14px;
+  background-color: white;
+  padding: 5px 3px;
+  border-radius: 0 10px 0 0;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+.note-content{
+  font-size: 16px;
+  background-color: white;
+  padding: 25px;
 }
 .handle{
   width: 3px;

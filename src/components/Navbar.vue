@@ -4,7 +4,7 @@
           <h1><router-link :to="{ name: 'Home' }">Babillard</router-link></h1>
           <div class="links">
             <div v-if="user">
-              <router-link class="btn" :to="{ name: 'Test'}">Test</router-link>
+              <router-link class="btn test" :to="{ name: 'Test'}">Test</router-link>
               <router-link class="btn" :to="{ name: 'EspacePerso'}">Espace Prosonnel</router-link>
               <button @click="handleClick">déconnexion</button>
             </div>
@@ -67,5 +67,8 @@ nav .links{
 nav .links a, button{
   font-size: 14px;
   margin-left: 16px;
+}
+.test{
+  display: none;
 }
 </style>
