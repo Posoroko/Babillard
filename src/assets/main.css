@@ -81,6 +81,9 @@ button:disabled {
 .nav-btn-on{
   opacity: 1;
 }
+.icon{
+  font-family: 'Material Icons';
+}
 .nav-btn-on:hover{
   font-size: 34px;
   cursor: pointer;

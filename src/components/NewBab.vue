@@ -249,13 +249,13 @@ export default {
                 // pré-enregistrement des style pour simplifier l'import dans l'espace personnel
                 if(wallpaper.value) {
                     miniStyles = {
-                        background: 'url(' + miniature.value + ')',
+                        backgroundImage: 'url(' + miniature.value + ')',
                         backgroundSize: 'cover',
                         backgroundPosition: 'center'
                     } 
                 } else if (color.value) {
                     miniStyles = {
-                    background: color.value
+                    backgroundColor: color.value
                     } 
                 }
                 getAndModifyBabiList(time, {
