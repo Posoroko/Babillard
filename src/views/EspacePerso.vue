@@ -44,7 +44,7 @@
     
     
     <div v-if="component == 'new'" >
-      <NewBab />
+      <NewBab @goBack="goBack" />
     </div>
     
 
@@ -77,7 +77,9 @@ export default {
 
     const goToNewBab = () => {
       component.value = 'new'
-
+    }
+    const goBack = (pack) => {
+      component.value = pack
     }
 
    onMounted(()=>{
@@ -93,7 +95,7 @@ export default {
 
 
 
-    return { user, nom, component, goToNewBab,  babOpened, document, error  }
+    return { user, nom, component, goToNewBab,  babOpened, document, error, goBack  }
   }
 }
 </script>

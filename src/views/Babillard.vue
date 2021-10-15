@@ -4,6 +4,7 @@
           <span class="nav-btn nav-btn-on pointer"  @click="goBack">arrow_back</span>
       </div>
         <h1>{{title}}</h1>
+        <button @click="requestNewCard">créer une nouvelle carte</button>
     </div>
 
 <!-- Babillard     --> 
@@ -61,7 +62,7 @@
                         @click="newCardType = 'note'" :class="{ 'selected plus': (newCardType == 'note')}">note
                   </div>
                   <div  class="tiny-tile card-type pointer lift" 
-                        @click="newCardType = 'import'" :class="{ 'selected plus': (newCardType == 'import')}">importer un document
+                        @click="newCardType = 'import'" :class="{ 'selected plus': (newCardType == 'import')}">importer une photo
                   </div>
 
                   <div class="flex width">
@@ -299,6 +300,9 @@ export default {
   background-color: rgb(255, 192, 120);
   display: flex;
   align-items: center;
+}
+.tool-box button{
+  margin-left: 30px;
 }
 
 .babillard{

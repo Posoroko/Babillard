@@ -158,7 +158,7 @@ import { projectFirestore } from '@/firebase/config'
 
 
 export default {
-    setup(){
+    setup(props, { emit }){
         const title = ref('')
         const description = ref('')
         const type = ref('')
@@ -223,7 +223,7 @@ export default {
         })
 
         const createBab = async () => {
-   
+            emit('goBack', null)
             if(title.value){
                 const babToBeAdded = 
                 isPending.value = true
@@ -245,6 +245,8 @@ export default {
                     id: time
                 })
                 let miniStyles = {}
+
+                // pré-enregistrement des style pour simplifier l'import dans l'espace personnel
                 if(wallpaper.value) {
                     miniStyles = {
                         background: 'url(' + miniature.value + ')',
