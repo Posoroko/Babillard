@@ -13,13 +13,7 @@
           @mousemove="moving" 
           @mouseup="letGo"
           ref="babi_div"
-          :style="{ 
-            backgroundImage: 'url(' + wallpaper + ')',
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundColor: color,
-            height: babiHeight + 'px',
-          }" >
+          v-bind:style="babiStyles" >
 
 
 
@@ -121,7 +115,8 @@ import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import ImportFile from '@/components/ImportFile'
 import useStorage from '@/composables/useStorage'
-
+// backgroundImage: 'url(' + wallpaper + ')',
+// backgroundColor: color,
 
 
 export default {
@@ -143,6 +138,7 @@ export default {
     const wallpaper = ref(null)
     const miniature = ref(null)
     const color = ref(null)
+    const babiStyles = ref({})
     const cardBundle = ref(null)
     const type = ref(null)
     const id = ref(props.id)
@@ -165,7 +161,7 @@ export default {
     const babi_div = ref(null)
     const babiHeight = ref(null)
 
-    
+   
 
 
     const createNewCard = async () => {
@@ -245,19 +241,31 @@ export default {
     } 
 
     projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(props.id).get().then((doc) => {
-      if(doc.exists){
-        document.value = doc.data()
-        title.value = doc.data().title
-        description.value = doc.data().description
-        type.value = doc.data().type
-        color.value = doc.data().value
-        wallpaper.value = doc.data().wallpaper
-        miniature.value = doc.data().miniature
-        babiHeight.value = window.innerHeight - babi_div.value.offsetTop
-        cardBundle.value = doc.data().cardList
-        } else{
-
-      }
+        if(doc.exists){
+            document.value = doc.data()
+            title.value = doc.data().title
+            description.value = doc.data().description
+            type.value = doc.data().type
+            color.value = doc.data().color
+            wallpaper.value = doc.data().wallpaper
+            miniature.value = doc.data().miniature
+            babiHeight.value = window.innerHeight - babi_div.value.offsetTop + 'px'
+            cardBundle.value = doc.data().cardList
+            console.log(doc.data().color)
+            if (doc.data().wallpaper) {
+                babiStyles.value =  { 
+                  background: 'url(' + doc.data().wallpaper + ')',
+                  backgroundSize: 'cover',
+                  backgroundPosition: 'center',           
+                  height: babiHeight
+                }
+            } else if (doc.data().color) {
+              babiStyles.value = { 
+                  background: doc.data().color,
+                  height: babiHeight 
+              }
+            }
+        }     
     })
 
     const createImageCard = async (pack) => {
@@ -279,7 +287,7 @@ export default {
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
     posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, 
     cardBundle, page, wallpaper, miniature, color, type, babi_div, babiHeight,
-    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending}
+    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending, babiStyles }
   }
 }
 </script>

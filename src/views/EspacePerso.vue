@@ -3,7 +3,7 @@
     
 
     <header>
-      <h1>Bonjour {{ nom }}!<br>Ca gazouille?</h1>
+      <h1>Bonjour {{ nom }}! Ca gazouille?</h1>
     </header>
     <div class="tool-bar" v-if="!babOpened">
         <div class="tool-box" v-if="component == 'home'">
@@ -17,23 +17,24 @@
         <div v-if="error" class="error">{{error}}</div>
         <div v-if="document" class="babillard-box parent3d">
             
-            <div class="tile pointer lift" v-for="babi in document" :key="babi.id">
-                <router-link class="full babi-link " :to="{ name: 'Babillard', params: { id: babi.id} }">
+            <div class="babi-box" v-for="babi in document" :key="babi.id">
+                <router-link class="babi full lift pointer" :to="{ name: 'Babillard', params: { id: babi.id} }">
+                    <div class="full background" :style="babi.miniStyles"></div>
                     <h3>{{ babi.title }}</h3>
                     <p>{{ babi.description }}</p>
                 </router-link>
             </div>
           
-            <div class="add-one pointer tile lift" >
-              <div class="full" @click="goToNewBab">
+            <div class=" pointer babi-box" >
+              <div class="full babi add-one lift" @click="goToNewBab">
                 +
               </div>
               
             </div>
         </div>
         <div class="width flex-row-centered" v-else>
-        <div class="add-one pointer tile lift" >
-            <div class="full" @click="goToNewBab">
+        <div class="babi-box pointer " >
+            <div class="full babi add-one lift" @click="goToNewBab">
                 +
             </div>
               
@@ -116,26 +117,30 @@ header, .tool-bar{
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
+  
 }
-
-
-.babi-link{
-  width: 100%;
-  height: 100%;
-  background-color: var(--secondary);
-  padding: 20px;
-  border-radius: 25px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-.add-one div{
+.babi-box{
   width: 250px;
   height: 200px;
-  background-color: var(--secondary);
+  position: relative;
+  margin: 20px;
+}
+.babi{
+  background-color: var(--primary);
   border-radius: 25px;
-  transition: all ease 300ms;
+  display: inline-block;
+  overflow: hidden;
+}
+.babi h3{
+  color: white;
+  font-weight: 400;
+  position: absolute;
+  top: 20%;
+  left: 20%;
+}
+
+
+.babi-box .add-one{
   font-size: 100px;
   color: white;
   display: grid;

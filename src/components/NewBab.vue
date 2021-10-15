@@ -112,13 +112,18 @@
                 <div class="background-box">
                     <div    v-for="image in wallpaperSamples"    
                             class="wallpaper-sample small-tile lift pointer" 
-                            :class="{ 'selected plus': (wallpaper === image.title)}"
+                            :class="{ 'selected plus': (selectedWallpaper == image.title)}"
                             :id="image.title" 
                             :key="image.miniature" 
-                            @click="chooseWallpaper">
-                            <img :src="image.miniature" :alt="image.title" class="width">
+                            >
+                            <img :src="image.miniature" :alt="image.title" class="width" @click="chooseWallpaper">
                     </div>
                     
+                </div>
+                <div class="flex width">
+                        <div class="nav-btn nav-btn_box auto-left">
+                                <span class="nav-btn nav-btn-on pointer"  @click="createBab">save navigate_next</span>
+                        </div>
                 </div>
             </div>
 
@@ -157,11 +162,12 @@ export default {
         const title = ref('')
         const description = ref('')
         const type = ref('')
-        const wallpaper = ref(null)
-        const miniature = ref(null)
-        const color = ref(null)
+        const wallpaper = ref('')
+        const miniature = ref('')
+        const color = ref('')
         const isPublic = ref(false)
-        const newBabId = ref(null)
+        const newBabId = ref('')
+        const selectedWallpaper = ref('')
 
 
         const formError = ref(null)
@@ -187,15 +193,18 @@ export default {
             type.value = e.currentTarget.id
         }
         const chooseColor = (e) => {
-            wallpaper.value = null
+            wallpaper.value = ''
             color.value = e.currentTarget.id
             console.log(color.value === e.currentTarget.id)
         }
         const chooseWallpaper = (e) => {
-            color.value = null
+            console.log('eric')
+            color.value = ''
             const obj = wallpaperSamples.value.filter((f) => {      //filter to find the two adresses
-                return f.title === e.currentTarget.id
+                return f.title === e.currentTarget.alt
             })
+            selectedWallpaper.value = obj[0].title
+            
             wallpaper.value = obj[0].adress
             miniature.value = obj[0].miniature
         }
@@ -220,27 +229,41 @@ export default {
                 isPending.value = true
                 let time = Date.now().toString()
                 newBabId.value = time
+              
 
                 await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(time).set({
                     title: title.value,
                     description: description.value,
                     wallpaper: wallpaper.value,
-                    miniature: miniature.value,
                     color: color.value,
+                    miniature: miniature.value,
                     type: type.value,
                     user: user.value.uid,
                     userName: user.value.displayName,
                     isPublic: isPublic.value,
-                    content: {
-
-                    },
                     createdAt: timestamp(),
                     id: time
                 })
+                let miniStyles = {}
+                if(wallpaper.value) {
+                    miniStyles = {
+                        background: 'url(' + miniature.value + ')',
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    } 
+                } else if (color.value) {
+                    miniStyles = {
+                    background: color.value
+                    } 
+                }
                 getAndModifyBabiList(time, {
                     title: title.value,
                     description: description.value,
-                    id: time
+                    id: time,
+                    miniStyles: miniStyles,
+                    user: user.value.uid,
+                    userName: user.value.displayName,
+                    isPublic: isPublic.value,
                 })
                 
                 isPending.value = false
@@ -263,7 +286,7 @@ export default {
             projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').get().then((doc) => {
                 
                 tempDoc = doc.data()
-                if(doc.exists){
+                if(tempDoc){
                     tempDoc.list.push(inputBab)
                     projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({list: tempDoc.list})
                 } else{
@@ -279,7 +302,8 @@ export default {
 
 
         return { createBab, title, description, formError, type, isPending, 
-        page, wallpaperSamples, colorSamples, chooseColor, chooseWallpaper, wallpaper, miniature, color, newBabId, setAccess, setType, color, isPublic }
+        page, wallpaperSamples, colorSamples, chooseColor, chooseWallpaper, wallpaper, 
+        miniature, color, newBabId, setAccess, setType, color, isPublic, selectedWallpaper }
     }
 }
 </script>
