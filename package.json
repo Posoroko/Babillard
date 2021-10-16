@@ -7,6 +7,7 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "axios": "^0.23.0",
     "core-js": "^3.6.5",
     "filepond": "^4.30.3",
     "filepond-plugin-file-validate-type": "^1.2.6",

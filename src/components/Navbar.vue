@@ -69,6 +69,6 @@ nav .links a, button{
   margin-left: 16px;
 }
 .test{
-  display: none;
+  display: inline;
 }
 </style>
