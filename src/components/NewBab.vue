@@ -198,7 +198,6 @@ export default {
             console.log(color.value === e.currentTarget.id)
         }
         const chooseWallpaper = (e) => {
-            console.log('eric')
             color.value = ''
             const obj = wallpaperSamples.value.filter((f) => {      //filter to find the two adresses
                 return f.title === e.currentTarget.alt

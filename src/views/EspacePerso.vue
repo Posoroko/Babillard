@@ -23,13 +23,14 @@
                 <router-link class="babi full lift pointer" :to="{ name: 'Babillard', params: { id: babi.id} }">
 
                     <div class="full background" :style="babi.miniStyles"></div>
-                    <span class="pointer babi-settings-btn"  @click="openBabiSetting">more_vert</span>
+                    
                     <h3>{{ babi.title }}</h3>
                     
                     
                     
                 </router-link>
-                <div class="babi-menu">
+            <transition name="slide">  
+                <div class="babi-menu" v-if="openedMenu == babi.id">
                       <h4 class="menu-item flex pubflex-row-centered">publique
                         <span class="pointer icon pub-btn auto-left"  v-if="!babi.isPublic" :name="babi.id"  @click="togglePublic">radio_button_unchecked</span>
                         <span class="pointer icon pub-btn auto-left" v-if="babi.isPublic" :name="babi.id"  @click="togglePublic ">task_alt</span>
@@ -37,7 +38,9 @@
                       <h4 class="flex menu-item">supprimer
                         <span class="pointer icon pub-btn auto-left" :name="babi.id"  @click="deleteBabi ">delete</span>
                       </h4>
-                    </div>
+                </div>
+           </transition>  
+                <span class="pointer babi-settings-btn" :name="babi.id"  @click="openBabiMenu">more_vert</span>
             </div>
 
 <!-- ajouter un babillard  -->
@@ -85,8 +88,40 @@ export default {
     const component = ref('home')
     const babOpened = ref(false)
     const { document, error } = getDocument('users/' + user.value.uid + '/userData', 'babiList')
+    const openedMenu = ref(null)
+    const isPending = ref(false)
     
-    
+    const togglePublic = async (e) => {
+      if(!isPending.value) {
+        let babId = e.target.getAttribute('name')
+        error.value = null
+        isPending.value = true
+        let pos = document.value.findIndex( f => (f.id == babId))
+        document.value[pos].isPublic = !document.value[pos].isPublic
+        await projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList')
+        .update({ list: document.value})
+        .then(() => { 
+            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(babId).update({
+              isPublic: document.value[pos].isPublic
+            }).then(() => {
+              isPending.value = false
+            }).catch((err) => {
+              error.value = err.message
+              isPending.value = false
+            })
+        }).catch((er) => {
+          error.value = er.message
+          isPending.value = false
+        })
+      } else {
+        error.value = " une demande est déjà en cours"
+      }
+      
+    }
+
+   
+
+
 
     const goToNewBab = () => {
       component.value = 'new'
@@ -100,7 +135,22 @@ export default {
        nom.value = user.value.displayName
      }
    })
+    const openBabiMenu = (e) => {
+      console.log(openedMenu.value)
+      console.log(e.target.getAttribute('name'))
+      if(!openedMenu.value || openedMenu.value != e.target.getAttribute('name')){
+        openedMenu.value = e.target.getAttribute('name')
+      } else {
+        openedMenu.value = null
+      } 
+      
 
+
+
+        
+      
+      
+    }
 
 
     const getIndexOfBabi = (jim) => {
@@ -144,7 +194,7 @@ export default {
 
 
 
-    return { user, nom, component, goToNewBab,  babOpened, document, error, goBack, deleteBabi  }
+    return { user, nom, component, goToNewBab,  babOpened, document, error, goBack, deleteBabi, openBabiMenu, openedMenu, togglePublic  }
   }
 }
 </script>
@@ -176,6 +226,7 @@ header, .tool-bar{
   height: 200px;
   position: relative;
   margin: 20px;
+  overflow: hidden;
 }
 .babi-settings-btn{
   font-family: 'Material Icons';
@@ -203,7 +254,8 @@ header, .tool-bar{
 .babi-menu{
   background-color: white;
   padding: 40px 25px 20px 20px;
-  border-radius: 0 25px 0 25px;
+  border: 1px solid white;
+  border-radius: 0 0px 0 25px;
   position: absolute;
   top: 0;
   right: 0;
@@ -212,6 +264,7 @@ header, .tool-bar{
   padding: 6px 0;
 }
 .pub-btn{
+  font-size: 25px;
   padding-left: 5px;
 }
 
@@ -220,6 +273,25 @@ header, .tool-bar{
   color: white;
   display: grid;
   place-items: center;
+}
+.slide-enter-from{
+  transform: translate(100%, -100%)
+}
+.slide-enter-to{
+  transform: translate(0%, 0%)
+}
+.slide-enter-active{
+  transition: transform 300ms ease;
+}
+
+.slide-leave-from{
+  transform: translate(0%, 0%)
+}
+.slide-leave-to{
+  transform: translate(100%, -100%)
+}
+.slide-leave-active{
+  transition: transform 300ms ease;
 }
 
 </style>
