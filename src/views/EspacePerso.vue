@@ -19,8 +19,8 @@
             
 <!-- liste de babillard  -->
 
-            <div class="babi-box" v-for="babi in document" :key="babi.id">
-                <router-link class="babi full lift pointer" :to="{ name: 'Babillard', params: { id: babi.id} }">
+            <div class="babi-box lift" v-for="babi in document" :key="babi.id">
+                <router-link class="babi full pointer" :to="{ name: 'Babillard', params: { id: babi.id} }">
 
                     <div class="full background" :style="babi.miniStyles"></div>
                     
@@ -31,12 +31,12 @@
                 </router-link>
             <transition name="slide">  
                 <div class="babi-menu" v-if="openedMenu == babi.id">
-                      <h4 class="menu-item flex pubflex-row-centered">publique
-                        <span class="pointer icon pub-btn auto-left"  v-if="!babi.isPublic" :name="babi.id"  @click="togglePublic">radio_button_unchecked</span>
-                        <span class="pointer icon pub-btn auto-left" v-if="babi.isPublic" :name="babi.id"  @click="togglePublic ">task_alt</span>
+                      <h4 class="menu-item flex pubflex-row-centered pointer" :name="babi.id"  @click="togglePublic">publique
+                        <span class="pointer icon pub-btn auto-left pointer">radio_button_unchecked</span>
+                        <span class="pointer icon pub-btn auto-left pointer"  @click="togglePublic ">task_alt</span>
                       </h4>
-                      <h4 class="flex menu-item">supprimer
-                        <span class="pointer icon pub-btn auto-left" :name="babi.id"  @click="deleteBabi ">delete</span>
+                      <h4 class="flex menu-item pointer" :name="babi.id"  @click="deleteBabi">supprimer
+                        <span class="pointer icon pub-btn auto-left">delete</span>
                       </h4>
                 </div>
            </transition>  
@@ -44,16 +44,16 @@
             </div>
 
 <!-- ajouter un babillard  -->
-            <div class=" pointer babi-box" >
-              <div class="full babi add-one lift" @click="goToNewBab">
+            <div class=" pointer babi-box lift" >
+              <div class="full babi add-one" @click="goToNewBab">
                 +
               </div>
               
             </div>
         </div>
         <div class="width flex-row-centered" v-else>
-        <div class="babi-box pointer " >
-            <div class="full babi add-one lift" @click="goToNewBab">
+        <div class="babi-box pointer lift " >
+            <div class="full babi add-one" @click="goToNewBab">
                 +
             </div>
               
@@ -93,7 +93,7 @@ export default {
     
     const togglePublic = async (e) => {
       if(!isPending.value) {
-        let babId = e.target.getAttribute('name')
+        let babId = e.currentTarget.getAttribute('name')
         error.value = null
         isPending.value = true
         let pos = document.value.findIndex( f => (f.id == babId))
@@ -161,15 +161,18 @@ export default {
     }
 
     const deleteBabi = (e) => {
-        let id = e.target.getAttribute('name')
-        let index = getIndexOfBabi(e.target.getAttribute('name'))
-        //delete from  collection(babillards)
-        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id).delete().then(()=> {
+        if(!isPending.value) {
+          isPending.value = true
+          error.value = false
+          let id = e.currentTarget.getAttribute('name')
+          let index = getIndexOfBabi(e.currentTarget.getAttribute('name'))
+          //delete from  collection(babillards)
+              projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id).delete().then(()=> {
 
-            //delete from babiList
-            projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').get().then((doc) => {    //get babiList
-                let temp = doc.data()
-                temp.list.splice(index, 1)
+                //delete from babiList
+                projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').get().then((doc) => {    //get babiList
+                  let temp = doc.data()
+                  temp.list.splice(index, 1)
 
                 //send back the new babiList
                 projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({
@@ -187,6 +190,8 @@ export default {
         }).catch((error) => {
             error.value = error.message
         })
+        }
+        isPending.value = false
     }
     
     
@@ -226,6 +231,7 @@ header, .tool-bar{
   height: 200px;
   position: relative;
   margin: 20px;
+  border-radius: 25px;
   overflow: hidden;
 }
 .babi-settings-btn{
@@ -259,6 +265,7 @@ header, .tool-bar{
   position: absolute;
   top: 0;
   right: 0;
+  box-shadow: -2px 2px 10px rgb(51, 51, 51);
 }
 .menu-item{
   padding: 6px 0;
