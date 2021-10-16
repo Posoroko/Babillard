@@ -223,30 +223,39 @@ export default {
         })
 
         const createBab = async () => {
-            emit('goBack', null)
-            if(title.value){
-                const babToBeAdded = 
-                isPending.value = true
-                let time = Date.now().toString()
-                newBabId.value = time
-              
+            error.value = null
+            isPending.value = true
+            // emit('goBack', null)
+            let oldBabilist = []
 
-                await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(time).set({
-                    title: title.value,
-                    description: description.value,
-                    wallpaper: wallpaper.value,
-                    color: color.value,
-                    miniature: miniature.value,
-                    type: type.value,
-                    user: user.value.uid,
-                    userName: user.value.displayName,
-                    isPublic: isPublic.value,
-                    createdAt: timestamp(),
-                    id: time
+            // check if options are selected
+            if(title.value) {
+                projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').get().then((doc) => {
+                oldBabilist = doc.data().list
+                console.log(oldBabilist)
+                
+                
+                }).catch((err) => {
+                    oldBabilist = null
+                    console.log('babiList is not alive')
+                    console.log(err.message)
                 })
-                let miniStyles = {}
+            } else {
+                error.value = "Vous n'avez pas donné de titre à votre babillard"
+            }
+            let okBabiList = false
 
-                // pré-enregistrement des style pour simplifier l'import dans l'espace personnel
+            if(oldBabilist.length < 6 || !oldBabilist) {
+                 okBabiList = true
+            } else if(oldBabilist.length >= 6 ) {
+                error.value = 'vous avez atteint le nombre maximum de babillards'
+                console.log('maximum number of babs reached')
+                return
+            } 
+            
+            if(!error.value && okBabiList){
+                // pré-enregistrement des styles pour la miniature  pour simplifier l'import dans l'espace personnel
+                let miniStyles = {}
                 if(wallpaper.value) {
                     miniStyles = {
                         backgroundImage: 'url(' + miniature.value + ')',
@@ -258,45 +267,85 @@ export default {
                     backgroundColor: color.value
                     } 
                 }
-                getAndModifyBabiList(time, {
+                
+                //createId for new bab
+                let time = Date.now().toString()
+                newBabId.value = time
+                let createdAt = Date().toLocaleString()
+                //création du nouveau babillard
+                const newBabi = {
                     title: title.value,
                     description: description.value,
-                    id: time,
+                    wallpaper: wallpaper.value,
+                    color: color.value,
+                    miniature: miniature.value,
                     miniStyles: miniStyles,
+                    type: type.value,
                     user: user.value.uid,
                     userName: user.value.displayName,
                     isPublic: isPublic.value,
-                })
-                
-                isPending.value = false
-                if(!error.value){
-                    console.log('babillard ajouté!!')
-                    title.value = ''
-                    description.value = ''
-                    error.value= null
-                    router.push( { name: 'Babillard', params: { id: newBabId.value} } )
+                    createdAt: createdAt,
+                    id: time
                 }
-                
+              
+                //upload du nouveau babillard
+                await projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(time).set(newBabi).then(() => {
+                    console.log('new babi uploaded')
+                    modifyBabiList(oldBabilist, newBabi, time)
+                }).catch((er) => {
+                    console.log("couldn't upload newBabi")
+                    error.value = er.message
+                    return
+                })
+ 
             } else{
-                formError.value = 'Veuillez saisir un titre'
-            }
-
-        }
-        const getAndModifyBabiList = async (id, inputBab) => {
-            
-            let tempDoc = null;
-            projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').get().then((doc) => {
                 
-                tempDoc = doc.data()
-                if(tempDoc){
-                    tempDoc.list.push(inputBab)
-                    projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({list: tempDoc.list})
+                    formError.value = 'quelque chose ne va pas'
+                    isPending.value = false
+                    return
+         
+ 
+            }
+        }
+        
+        const modifyBabiList = async (oldBabilist, inputBab, idOfNewBabi) => {
+                
+                if(oldBabilist){
+                    let list = oldBabilist
+                    list.push(inputBab)
+                    await projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({ list: list }).then(()=> {
+                        console.log('babilist updated')
+                    }).catch((er) => {
+                        error.value = er.message
+                        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(idOfNewBabi).delete().then(() => {
+                            console.log('aborted, newBab deleted')
+                            return
+                        }).catch((e) => {
+                            error.value = e.message
+                            console.log("Houston, we have a problem")
+                        })
+                        
+                    })
                 } else{
                     let newArr = new Array(inputBab)
-                    projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({list: newArr})
+                    
+                    await projectFirestore.collection('users/' + user.value.uid + '/userData').doc('babiList').set({list: newArr}).then(()=> {
+                        console.log('babilist created')
+                    }).catch((error) => {
+                        error.value = error.message
+                        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(idOfNewBabi).delete()
+                        console.log('houston we also have a problem')
+                    })
+                }
+                if(!error.value) {
+                    console.log('processus finalisé avec succès')
+                    title.value = ''
+                    description.value = ''
+                    isPending.value = false
+                    router.push( { name: 'Babillard', params: { id: newBabId.value} } )
                 }
   
-                })
+               
         }
         
 
