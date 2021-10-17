@@ -86,7 +86,8 @@
             <textarea cols="5" rows="5" placeholder="notez ici vos idées..." v-model="newCardContent"></textarea>
             <div class="flex width">
                 <div class="nav-btn nav-btn_box auto-left">
-                    <span class="nav-btn nav-btn-on pointer"  @click="createNewCard">save navigate_next</span>
+                    <span class="nav-btn nav-btn-on pointer" v-if="!isPending" @click="createNewCard">save navigate_next</span>
+                    <span class="nav-btn nav-btn-on pointer" v-else>pending</span>
                 </div>
             </div>  
         </div>
@@ -167,8 +168,7 @@ export default {
 
     //key is to fire the function if it is triggered by  createImageCard()
 
-    const createNewCard = (key) => {
-      console.log(key)
+    const createNewCard = (e, key) => {
       if(!isPending.value || key != undefined) {
         isPending.value = true
         let time = Date.now().toString()
@@ -199,35 +199,34 @@ export default {
             tempDoc.push(newCard)
             projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: tempDoc})
             .then(()=> { cardBundle.value = tempDoc
-                newCardTitle.value = null
-                newCardType.value = null
-                newCardContent.value = null
-                posX.value = null
-                posY.value = null
-                isPending.value = false
+
             }).catch((err) => {
                 error.value = err.message
-                isPending.value = false
             })
 
             } else {
             let newArr = new Array(newCard)
             projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({cardList: newArr})
             .then(() => {
-              newCardTitle.value = null
-              newCardType.value = null
-              newCardContent.value = null
-              posX.value = null
-              posY.value = null
-              isPending.value = false
+              
+
             }).catch((err) => {
               error.value = err.message
-              isPending.value = false
+ 
             })
             cardBundle.value = newArr
           }
-          
+          isPending.value = false
+        }).catch((err) => {
+          error.value = err.message
         })
+        if(!error.value) {
+            newCardTitle.value = null
+            newCardType.value = null
+            newCardContent.value = null
+            posX.value = null
+            posY.value = null
+        }
       }
     
     
@@ -313,7 +312,7 @@ export default {
           imageName.value = pack.imageName
           miniName.value = pack.miniName
           if(!storageError.value) {
-              createNewCard('let me in')
+              createNewCard(null, 'let me in') //
           } else {
             console.log(storageError.value)
           }

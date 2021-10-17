@@ -25,7 +25,8 @@
    <textarea v-model="imageDescription" placeholder="description" rows="3"></textarea>
     <div class="flex width">
         <div class="nav-btn nav-btn_box auto-left">
-            <span class="nav-btn nav-btn-on pointer"  @click="handleClick">save navigate_next</span>
+            <span class="nav-btn nav-btn-on pointer" v-if="!isPending"  @click="handleClick">save navigate_next</span>
+            <span class="nav-btn nav-btn-on pointer" v-else>pending</span>
         </div>
     </div>
     <div class="test"></div>
@@ -48,6 +49,7 @@ export default {
     const miniature = ref(null)
     const imageTitle = ref('')
     const imageDescription = ref('')
+    const isPending = ref(false)
 
     const fileError = ref('')
     const previewBox = ref(null)
@@ -95,7 +97,8 @@ export default {
       inputFile_input.value.click()
     }
     const handleClick = () => {
-      if(miniature.value && selectedFile.value) {
+      if(miniature.value && selectedFile.value && !isPending) {
+        isPending.value = true
         emit('createImageCard', {
           title: imageTitle.value,
           content: imageDescription.value,
@@ -104,6 +107,7 @@ export default {
           imageName: selectedFile.value.name,
           miniName: miniature.value.name
         })
+        isPending.value = false
       }
 
 
@@ -115,6 +119,7 @@ export default {
 
     return {  selectedFile, handleChange, fileError, previewBox, selectedFileName, 
               selectFile, inputFile_input, handleClick, imageTitle, imageDescription, 
+              isPending
              }
   }
 
