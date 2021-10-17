@@ -125,6 +125,7 @@ export default {
   components: { ImportFile },
   setup(props){
     const { imageUrl, miniUrl, storageError, filePath, uploadImage } = useStorage()
+    const error = ref(null)
   
     const isPending = ref(false)
     const { user } = getUser()
@@ -164,67 +165,88 @@ export default {
 
    
 
+    //key is to fire the function if it is triggered by  createImageCard()
 
-    const createNewCard = async () => {
-      let time = Date.now().toString()
-      const newCard = {
-        title: newCardTitle.value,
-        type: newCardType.value,
-        content: newCardContent.value,
-        id: time,
-        posX: posX.value,
-        posY: posY.value,
-        filePath: filePath.value,
-        imageUrl: imageUrl.value,
-        miniUrl: miniUrl.value,
-        imageName: imageName.value,
-        miniName: miniName.value
-      }
-      requestPanelIsOn.value = false
+    const createNewCard = (key) => {
+      console.log(key)
+      if(!isPending.value || key != undefined) {
+        isPending.value = true
+        let time = Date.now().toString()
+        const newCard = {
+            title: newCardTitle.value,
+            type: newCardType.value,
+            content: newCardContent.value,
+            id: time,
+            posX: posX.value,
+            posY: posY.value,
+            filePath: filePath.value,
+            imageUrl: imageUrl.value,
+            miniUrl: miniUrl.value,
+            imageName: imageName.value,
+            miniName: miniName.value
+        }
+        requestPanelIsOn.value = false
       
-      getAndModifyField(newCard)
+        getAndModifyField(newCard)
+      }
     }
     const getAndModifyField = async (newCard) => {    
         
         projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).get().then((doc) => {
           if(doc.data().cardList){
+            error.value = null
             var tempDoc = doc.data().cardList;
             tempDoc.push(newCard)
-            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: tempDoc}).then(()=> {
-              cardBundle.value = tempDoc
+            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: tempDoc})
+            .then(()=> { cardBundle.value = tempDoc
+                newCardTitle.value = null
+                newCardType.value = null
+                newCardContent.value = null
+                posX.value = null
+                posY.value = null
+                isPending.value = false
+            }).catch((err) => {
+                error.value = err.message
+                isPending.value = false
             })
 
             } else {
             let newArr = new Array(newCard)
             projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({cardList: newArr})
+            .then(() => {
+              newCardTitle.value = null
+              newCardType.value = null
+              newCardContent.value = null
+              posX.value = null
+              posY.value = null
+              isPending.value = false
+            }).catch((err) => {
+              error.value = err.message
+              isPending.value = false
+            })
             cardBundle.value = newArr
           }
-          newCardTitle.value = null
-          newCardType.value = null
-          newCardContent.value = null
-          posX.value = null
-          posY.value = null
+          
         })
-        isPending.value = false
       }
     
     
 
     const requestNewCard = (e) => {
       if(!requestPanelIsOn.value){
-        var pos =e.currentTarget.getBoundingClientRect()
-        if(e.clientX - pos.left < 200) {
-          posX.value = '250px'
-        } else {
-          posX.value = e.clientX - pos.left + 'px'
-        }
-        if(e.clientY - pos.top < 200) {
-          posY.value = '350px'
-        } else {
-          posY.value = e.clientY - pos.top + 'px'
-        }
-        requestPanelIsOn.value = true
-        page.value = 'type'
+          requestPanelIsOn.value = true
+          var pos =e.currentTarget.getBoundingClientRect()
+          if(e.clientX - pos.left < 200) {
+            posX.value = '250px'
+          } else {
+            posX.value = e.clientX - pos.left + 'px'
+          }
+          if(e.clientY - pos.top < 200) {
+            posY.value = '350px'
+          } else {
+            posY.value = e.clientY - pos.top + 'px'
+          }
+          page.value = 'type'
       }
      
       
@@ -241,46 +263,63 @@ export default {
       router.push( { name: 'EspacePerso'} )
     } 
 
-    projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(props.id).get().then((doc) => {
-        if(doc.exists){
-            document.value = doc.data()
-            title.value = doc.data().title
-            description.value = doc.data().description
-            type.value = doc.data().type
-            color.value = doc.data().color
-            wallpaper.value = doc.data().wallpaper
-            miniature.value = doc.data().miniature
-            babiHeight.value = window.innerHeight - babi_div.value.offsetTop + 'px'
-            cardBundle.value = doc.data().cardList
-            console.log(doc.data().color)
-            if (doc.data().wallpaper) {
-                babiStyles.value =  { 
-                  background: 'url(' + doc.data().wallpaper + ')',
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',           
-                  height: babiHeight
+    projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(props.id).get()
+        .then((doc) => {
+            if(doc.exists){
+                document.value = doc.data()
+                title.value = doc.data().title
+                description.value = doc.data().description
+                type.value = doc.data().type
+                color.value = doc.data().color
+                wallpaper.value = doc.data().wallpaper
+                miniature.value = doc.data().miniature
+                babiHeight.value = window.innerHeight - babi_div.value.offsetTop + 'px'
+                cardBundle.value = doc.data().cardList
+                console.log(doc.data().color)
+                if (doc.data().wallpaper) {
+                    babiStyles.value =  { 
+                      background: 'url(' + doc.data().wallpaper + ')',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',           
+                      height: babiHeight
+                    }
+                } else if (doc.data().color) {
+                  babiStyles.value = { 
+                      background: doc.data().color,
+                      height: babiHeight 
+                  }
                 }
-            } else if (doc.data().color) {
-              babiStyles.value = { 
-                  background: doc.data().color,
-                  height: babiHeight 
-              }
-            }
-        }     
-    })
-
+            }     
+        })
+        .catch((err) => {
+          error.value = err.message
+        })
+    
+    // pour créer une carte contenant une image, on commence par upload l'image dans Storage
+    // createImageCard() est un 'emit' qui arrive du component 'importfile.vue'
+    
     const createImageCard = async (pack) => {
-      // upload image and miniature to firebase.storage
-      // emit an object containing the image informations
-      //title, description, image and miniature
-      isPending.value = true
-      await uploadImage(pathRef, pack.image)
-      await uploadImage(pathRef, pack.miniature)
-      newCardTitle.value = pack.title
-      newCardContent.value = pack.content
-      imageName.value = pack.imageName
-      miniName.value = pack.miniName
-      createNewCard()
+        if(!isPending.value) {
+          error.value = null
+          storageError.value = null
+          isPending.value = true
+          // upload image and miniature to firebase.storage
+          // emit an object containing the image informations
+          //title, description, image and miniature
+          await uploadImage(pathRef, pack.image)
+          await uploadImage(pathRef, pack.miniature)
+          newCardTitle.value = pack.title
+          newCardContent.value = pack.content
+          imageName.value = pack.imageName
+          miniName.value = pack.miniName
+          if(!storageError.value) {
+              createNewCard('let me in')
+          } else {
+            console.log(storageError.value)
+          }
+          
+        }
+        
     }
 
     
@@ -288,7 +327,7 @@ export default {
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
     posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, 
     cardBundle, page, wallpaper, miniature, color, type, babi_div, babiHeight,
-    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending, babiStyles }
+    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending, babiStyles, error }
   }
 }
 </script>

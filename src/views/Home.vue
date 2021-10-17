@@ -2,7 +2,7 @@
   <div class="home full">
     <div class="content">
       <FullLogo />
-      <h1>Créer, organiser et partager vos idées</h1>
+      <h1>Créer, organiser et partager les idées</h1>
       <div v-if="user" class="who-is-connected flex JC-center">Vous êtes connecté en tant que {{user.displayName}}</div>
       <div v-else class="width" >
         <router-link class="big-btn lift" :to="{ name: 'Signup'}">créer un compte</router-link>
