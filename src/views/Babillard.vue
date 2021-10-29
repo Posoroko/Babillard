@@ -64,6 +64,9 @@
                   <div  class="tiny-tile card-type pointer lift" 
                         @click="newCardType = 'import'" :class="{ 'selected plus': (newCardType == 'import')}">importer une photo
                   </div>
+                  <div  class="tiny-tile card-type pointer lift" 
+                        @click="newCardType = 'http'" :class="{ 'selected plus': (newCardType == 'http')}">lien http
+                  </div>
 
                   <div class="flex width">
                       <div class="nav-btn nav-btn_box auto-left">
@@ -96,6 +99,9 @@
         <div v-if="page === 'import'">
           <ImportFile @createImageCard='createImageCard' />
         </div>
+        <div v-if="page === 'http'">
+          <CreateLink @createLinkCard='createLinkCard' />
+        </div>
         
 
         </div>
@@ -116,6 +122,7 @@ import getUser from '@/composables/getUser'
 import { useRouter } from 'vue-router'
 import { ref } from 'vue'
 import ImportFile from '@/components/ImportFile'
+import CreateLink from '@/components/CreateLink'
 import useStorage from '@/composables/useStorage'
 // backgroundImage: 'url(' + wallpaper + ')',
 // backgroundColor: color,
@@ -123,7 +130,7 @@ import useStorage from '@/composables/useStorage'
 
 export default {
   props: [ 'id' ],
-  components: { ImportFile },
+  components: { ImportFile, CreateLink },
   setup(props){
     const { imageUrl, miniUrl, storageError, filePath, uploadImage } = useStorage()
     const error = ref(null)
@@ -255,6 +262,8 @@ export default {
         case 'note': page.value = 'note'
         break
         case 'import': page.value = 'import'
+        break
+        case 'http': page.value = 'http'
       }
     }
 
