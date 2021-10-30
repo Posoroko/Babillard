@@ -41,7 +41,7 @@
         <transition name="slide">  
             <div class="card-menu" v-if="openedMenu == card.id">
                 <h4 class="flex menu-item pointer" :name="card.id"  @click="deleteCard">supprimer
-                    <span class="pointer icon pub-btn auto-left">delete</span>
+                    <span class="pointer icon pub-btn auto-left" >delete</span>
                 </h4>
             </div>
         </transition>
@@ -202,8 +202,34 @@ export default {
         openedMenu.value = null
       } 
     }
-    const deleteCard = () => {
-      
+    const deleteCard = (e) => {
+      isPending.value = true
+      projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).get()
+      .then((doc) => {
+        let temp = doc.data().cardList
+        console.log(temp)
+        for(let i = 0; i < temp.length - 1; i++ ){
+          console.log(i)
+          if(temp[i].id == e.target.getAttribute('name')) {
+            temp.splice(i, 1)
+            break
+          }
+        }
+
+        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: temp})
+        .then(() => {
+          isPending.value = false
+        })
+        .catch((err) => {
+          error.value = err.message
+          isPending.value = false
+        })
+
+
+      }) .catch((err) => {
+        console.log(err.message)
+        isPending.value = false
+      })
     }
 
     //key is for fireing the function if it is triggered by  createImageCard()
@@ -378,7 +404,7 @@ export default {
               linkData: pack,
               id: time,
               posX: posX.value,
-              posY: posY.value,
+              posY: posY.value
           }
 
         console.log('all good 01')
