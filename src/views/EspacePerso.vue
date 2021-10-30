@@ -135,6 +135,7 @@ export default {
        nom.value = user.value.displayName
      }
    })
+   
     const openBabiMenu = (e) => {
       console.log(openedMenu.value)
       console.log(e.target.getAttribute('name'))
@@ -143,13 +144,7 @@ export default {
       } else {
         openedMenu.value = null
       } 
-      
 
-
-
-        
-      
-      
     }
 
 
@@ -257,23 +252,7 @@ header, .tool-bar{
   top: 20%;
   left: 20%;
 }
-.babi-menu{
-  background-color: white;
-  padding: 40px 25px 20px 20px;
-  border: 1px solid white;
-  border-radius: 0 0px 0 25px;
-  position: absolute;
-  top: 0;
-  right: 0;
-  box-shadow: -2px 2px 10px rgb(51, 51, 51);
-}
-.menu-item{
-  padding: 6px 0;
-}
-.pub-btn{
-  font-size: 25px;
-  padding-left: 5px;
-}
+
 
 .babi-box .add-one{
   font-size: 100px;
@@ -281,24 +260,6 @@ header, .tool-bar{
   display: grid;
   place-items: center;
 }
-.slide-enter-from{
-  transform: translate(100%, -100%)
-}
-.slide-enter-to{
-  transform: translate(0%, 0%)
-}
-.slide-enter-active{
-  transition: transform 300ms ease;
-}
 
-.slide-leave-from{
-  transform: translate(0%, 0%)
-}
-.slide-leave-to{
-  transform: translate(100%, -100%)
-}
-.slide-leave-active{
-  transition: transform 300ms ease;
-}
 
 </style>

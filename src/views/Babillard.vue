@@ -5,6 +5,7 @@
       </div>
         <h1>{{title}}</h1>
         <button @click="requestNewCard">créer une nouvelle carte</button>
+        <h6>{{error}}</h6>
     </div>
 
 <!-- Babillard     --> 
@@ -28,21 +29,31 @@
         <img v-if="card.type == 'import'" :src="card.miniUrl" class="full card-mini">
 
         <!-- needs more conditions for different types of links -->
-        <a v-if="card.type == 'link'" :href="card.linkData.url" target="_blank">
-          <img  :src="card.linkData.favicon" class="card-mini">
+        <a v-if="card.type == 'link'" :href="card.linkData.url" target="_blank" class="linkATag full">
+          <img v-if="card.linkData.image" :src="card.linkData.image" class="linkImg">
+          <img v-else  :src="card.linkData.favicon" class="linkIcon">
         </a>
-
-
-        <div class="card-top-bar width flex JC-space-between">
-          <h3 v-if="card.type='link'" class="card-info-border card-title">{{ card.linkData.title.substring(0,25) }}</h3>
-          <h3 v-else class="card-info-border card-title">{{ card.title }}</h3>
-          <span class="card-info-border pointer card-settings"  @click="goToTypePage">tune</span>
+        <div class="card-top-bar width flex JC-space-between"> 
+          <h3 v-if="card.linkData.title" class=" card-title">{{ card.linkData.title.substring(0,25) }}</h3>
+          <h3 v-if="card.title" class=" card-title">{{ card.title }}</h3>
+          <span class="pointer card-settings auto-left" :name="card.id "  @click="openCardMenu">more_vert</span>
         </div>
+        <transition name="slide">  
+            <div class="card-menu" v-if="openedMenu == card.id">
+                <h4 class="flex menu-item pointer" :name="card.id"  @click="deleteCard">supprimer
+                    <span class="pointer icon pub-btn auto-left">delete</span>
+                </h4>
+            </div>
+        </transition>
+
+        
         
         <p v-if="card.type == 'note'" class="full  note-content">{{ card.content }}</p>   
-        <p v-if="card.type == 'import'" class="card-info-border image-description">{{ card.content }}</p>
-        <p v-if="card.type == 'link'" class="card-info-border image-description">{{ card.linkData.description.substring(0,25) }}</p>
-        <div class="handle"></div>    
+        <p v-if="card.type == 'import'" class=" image-description">{{ card.content }}</p>
+        <p v-if="card.linkData.description" class=" image-description">{{ card.linkData.description.substring(0,25) }}</p>
+        <div class="handle"></div>
+
+        
 
 
       </div>
@@ -179,7 +190,21 @@ export default {
     const babi_div = ref(null)
     const babiHeight = ref(null)
 
-   
+
+    const openedMenu = ref(null)
+    const openCardMenu = (e) => {
+      console.log(openedMenu.value)
+      console.log(e.target.getAttribute('name'))
+      if(!openedMenu.value || openedMenu.value != e.target.getAttribute('name')){
+        openedMenu.value = e.target.getAttribute('name')
+        console.log(openedMenu.value)
+      } else {
+        openedMenu.value = null
+      } 
+    }
+    const deleteCard = () => {
+      
+    }
 
     //key is for fireing the function if it is triggered by  createImageCard()
 
@@ -209,31 +234,35 @@ export default {
         
         projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).get().then((doc) => {
           if(doc.data().cardList){
+            console.log('0')
             error.value = null
             var tempDoc = doc.data().cardList;
             tempDoc.push(newCard)
+            console.log(tempDoc)
             projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: tempDoc})
             .then(()=> { cardBundle.value = tempDoc
-
+              console.log('1')
             }).catch((err) => {
-                error.value = err.message
+                console.log('2')
+                error.value = "couldn't update data: " + err.message
             })
 
             } else {
             let newArr = new Array(newCard)
             projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({cardList: newArr})
             .then(() => {
-              
+              console.log('3')
 
             }).catch((err) => {
-              error.value = err.message
- 
+              error.value = "couldn't update data after creating new Array: " + err.message
+              console.log('4')
             })
             cardBundle.value = newArr
           }
           isPending.value = false
         }).catch((err) => {
-          error.value = err.message
+          console.log('5')
+          error.value = "couldn't fetch data: "  + err.message
         })
         if(!error.value) {
             newCardTitle.value = null
@@ -351,8 +380,9 @@ export default {
               posX: posX.value,
               posY: posY.value,
           }
-        requestPanelIsOn.value = false
-      
+
+        console.log('all good 01')
+        // console.log(newCard.linkData)
         getAndModifyField(newCard)
 
         }
@@ -364,7 +394,8 @@ export default {
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
     posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, 
     cardBundle, page, wallpaper, miniature, color, type, babi_div, babiHeight,
-    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending, babiStyles, error, createLinkCard }
+    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, 
+    uploadImage, isPending, babiStyles, error, createLinkCard, openCardMenu, openedMenu, deleteCard }
   }
 }
 </script>
@@ -421,24 +452,23 @@ export default {
 
 .card{
   width: 250px;
-  aspect-ratio: 5/4;
+  /* aspect-ratio: 5/4; */
   border-radius: 15px;
   margin: 10px;
   background-color: white;
   position: relative;
   padding: 8px;
+  overflow: hidden;
 }
 .card:active{
   cursor: grabbing;
 }
-.card-info-border{
-  border: 1px solid var(--funky);
-}
+
 .card-title {
   max-width: 80%;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 300;
-  background-color: white;
+  background-color: rgb(230, 230, 230);
   padding: 3px 5px;
   border-radius: 0 0 10px 0;
 }
@@ -446,14 +476,14 @@ export default {
   position: absolute;
   top: 0;
   left: 0;
-  
 }
 .card-settings{
   font-family: 'Material Icons';
   font-size: 20px;
-  background-color: white;
+  background-color: rgb(230, 230, 230);
   padding: 3px 5px;
   border-radius: 0 0 0 10px;
+  z-index: 1000;
 }
 .card-mini{
   object-fit: cover;
@@ -461,7 +491,7 @@ export default {
 .image-description{
   max-width: 100%;
   font-size: 14px;
-  background-color: white;
+  background-color: rgb(230, 230, 230);
   padding: 5px 3px;
   border-radius: 0 10px 0 0;
   position: absolute;
@@ -476,7 +506,7 @@ export default {
 .handle{
   width: 3px;
   height: 100%;
-  background-color: red;
+  background-color: transparent;
   position: absolute;
   top: 0;
   right: 0;
@@ -484,7 +514,48 @@ export default {
 .handle:hover{
   cursor: e-resize;
 }
+.linkATag{
+  min-height: 200px;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+.linkATag .linkImg{
+  width: 100%;
+}
+.card-menu{
+  background-color: white;
+  padding: 40px 25px 20px 20px;
+  border: 1px solid white;
+  border-radius: 0 0px 0 25px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  box-shadow: -2px 2px 10px rgb(51, 51, 51);
+}
+.menu-item{
+  padding: 6px 0;
+}
 
+.slide-enter-from{
+  transform: translate(100%, -100%)
+}
+.slide-enter-to{
+  transform: translate(0%, 0%)
+}
+.slide-enter-active{
+  transition: transform 300ms ease;
+}
+
+.slide-leave-from{
+  transform: translate(0%, 0%)
+}
+.slide-leave-to{
+  transform: translate(100%, -100%)
+}
+.slide-leave-active{
+  transition: transform 300ms ease;
+}
 
 
 </style>

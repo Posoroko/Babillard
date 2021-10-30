@@ -3,7 +3,9 @@ const processLinkData = (data) => {
     result.contentType = data.contentType
     result.mediaType = data.mediaType
     result.url = data.url
-    result.siteName = data.siteName
+    if(data.siteName) {
+        result.siteName = data.siteName
+    }
     //grab biggest icon available
     if(data.favicons) {
         result.favicon = data.favicons[data.favicons.length -1]

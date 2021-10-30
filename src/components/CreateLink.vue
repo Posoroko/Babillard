@@ -12,7 +12,7 @@
     <div class="previewBox width grid-center" v-if="linkData">
         <h3  v-if="linkData.title">{{linkData.title}}</h3>
         <h3  v-if="!linkData.title">{{linkData.siteName}}</h3>
-        <img :src="linkData.image" alt="" class="width" v-if="!linkData.favicon">
+        <img :src="linkData.image" alt="" class="width" v-if="linkData.image">
         <img :src="linkData.favicon" alt="" class="" v-else>
         <h3>{{linkData.description}}</h3>
         <span class="nav-btn nav-btn-on pointer" v-if="!isPending" @click="handleClick">save navigate_next</span>
