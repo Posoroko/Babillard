@@ -173,7 +173,7 @@ export default {
 
    
 
-    //key is to fire the function if it is triggered by  createImageCard()
+    //key is for fireing the function if it is triggered by  createImageCard()
 
     const createNewCard = (e, key) => {
       if(!isPending.value || key != undefined) {
@@ -325,10 +325,31 @@ export default {
           } else {
             console.log(storageError.value)
           }
-          
         }
-        
     }
+
+    const createLinkCard = async (pack) => {
+        if(!isPending.value) {
+          error.value = null
+          storageError.value = null
+          isPending.value = true
+          // upload image to firebase.storage
+          // emit an object containing the image informations
+          //title, description, image and miniature
+          await uploadImage(pathRef, pack.image)
+          await uploadImage(pathRef, pack.miniature)
+          newCardTitle.value = pack.title
+          newCardContent.value = pack.content
+          imageName.value = pack.imageName
+          miniName.value = pack.miniName
+          if(!storageError.value) {
+              createNewCard(null, 'let me in') //
+          } else {
+            console.log(storageError.value)
+          }
+        }
+    }
+
 
     
 
