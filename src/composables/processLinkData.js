@@ -25,7 +25,7 @@ const processLinkData = (data) => {
     } else if (data.contentType.toLowerCase().includes('audio')) {
         result.audio = data.url
     }
-    console.log(result)
+    return result
 
 }
 

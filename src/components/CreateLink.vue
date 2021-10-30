@@ -12,8 +12,8 @@
     <div class="previewBox width grid-center" v-if="linkData">
         <h3  v-if="linkData.title">{{linkData.title}}</h3>
         <h3  v-if="!linkData.title">{{linkData.siteName}}</h3>
-        <img :src="linkData.images[0]" alt="" class="width" v-if="linkData.images[0]">
-        <img :src="linkData.favicons[0]" alt="" class="" v-if="!linkData.images[0]">
+        <img :src="linkData.image" alt="" class="width" v-if="!linkData.favicon">
+        <img :src="linkData.favicon" alt="" class="" v-else>
         <h3>{{linkData.description}}</h3>
         <span class="nav-btn nav-btn-on pointer" v-if="!isPending" @click="handleClick">save navigate_next</span>
         <span class="nav-btn nav-btn-on pointer" v-else>pending</span>
@@ -27,30 +27,22 @@
     import { projectFunctions } from '@/firebase/config'
     import { httpsCallable } from 'firebase/functions'
     import processLinkData from '@/composables/processLinkData'
+    const emit = defineEmits([ 'createLinkCard' ])
 
     const error = ref(null)
     const isPending = ref(false)
     const inputLink = ref('http://')
     const linkData = ref(null)
     const getMetadata = httpsCallable(projectFunctions, 'getMetadata')
-    const filteredLinkData = {
-        title: '',
-        siteName: '',
-        description: '',
-        image: '',
-        contentType: '',
-        url: '',
-        mediaSite: '',
-
-    }
-
+   
+    //submit input link to fetch metadata
     const getLinkPreview = async () =>{
         error.value = null
         isPending.value = true
         getMetadata({link: inputLink.value}).then((result) => {
-            linkData.value = result.data
+            console.log(result.data)
+            linkData.value = processLinkData(result.data)
             console.log(linkData.value)
-            processLinkData(linkData.value)
             isPending.value = false
         }).catch((err) => {
             console.log(err.message)
@@ -60,6 +52,7 @@
         })
     }
 
+    //create new card one the metadata is fetched
     const handleClick = () => {
       if(!error.value && linkData.value) {
         isPending.value = true

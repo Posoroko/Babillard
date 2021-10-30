@@ -27,13 +27,21 @@
         @mousedown="selectCard" >
         <img v-if="card.type == 'import'" :src="card.miniUrl" class="full card-mini">
 
+        <!-- needs more conditions for different types of links -->
+        <a v-if="card.type == 'link'" :href="card.linkData.url" target="_blank">
+          <img  :src="card.linkData.favicon" class="card-mini">
+        </a>
+
+
         <div class="card-top-bar width flex JC-space-between">
-          <h3 class="card-info-border card-title">{{ card.title }}</h3>
+          <h3 v-if="card.type='link'" class="card-info-border card-title">{{ card.linkData.title.substring(0,25) }}</h3>
+          <h3 v-else class="card-info-border card-title">{{ card.title }}</h3>
           <span class="card-info-border pointer card-settings"  @click="goToTypePage">tune</span>
         </div>
         
         <p v-if="card.type == 'note'" class="full  note-content">{{ card.content }}</p>   
-        <p v-if="card.type == 'import'" class="card-info-border image-description">{{ card.content }}</p>   
+        <p v-if="card.type == 'import'" class="card-info-border image-description">{{ card.content }}</p>
+        <p v-if="card.type == 'link'" class="card-info-border image-description">{{ card.linkData.description.substring(0,25) }}</p>
         <div class="handle"></div>    
 
 
@@ -192,7 +200,7 @@ export default {
             imageName: imageName.value,
             miniName: miniName.value
         }
-        requestPanelIsOn.value = false
+        
       
         getAndModifyField(newCard)
       }
@@ -233,6 +241,7 @@ export default {
             newCardContent.value = null
             posX.value = null
             posY.value = null
+            requestPanelIsOn.value = false
         }
       }
     
@@ -333,20 +342,19 @@ export default {
           error.value = null
           storageError.value = null
           isPending.value = true
-          // upload image to firebase.storage
-          // emit an object containing the image informations
-          //title, description, image and miniature
-          await uploadImage(pathRef, pack.image)
-          await uploadImage(pathRef, pack.miniature)
-          newCardTitle.value = pack.title
-          newCardContent.value = pack.content
-          imageName.value = pack.imageName
-          miniName.value = pack.miniName
-          if(!storageError.value) {
-              createNewCard(null, 'let me in') //
-          } else {
-            console.log(storageError.value)
+          
+          let time = Date.now().toString()
+          const newCard = {
+              type: 'link',
+              linkData: pack,
+              id: time,
+              posX: posX.value,
+              posY: posY.value,
           }
+        requestPanelIsOn.value = false
+      
+        getAndModifyField(newCard)
+
         }
     }
 
@@ -356,7 +364,7 @@ export default {
     return { document, title, goBack, requestNewCard, requestPanelIsOn, 
     posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, 
     cardBundle, page, wallpaper, miniature, color, type, babi_div, babiHeight,
-    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending, babiStyles, error }
+    createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, uploadImage, isPending, babiStyles, error, createLinkCard }
   }
 }
 </script>
