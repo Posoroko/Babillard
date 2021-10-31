@@ -137,10 +137,11 @@ export default {
    })
    
     const openBabiMenu = (e) => {
-      console.log(openedMenu.value)
-      console.log(e.target.getAttribute('name'))
+      
       if(!openedMenu.value || openedMenu.value != e.target.getAttribute('name')){
         openedMenu.value = e.target.getAttribute('name')
+        console.log(openedMenu.value)
+
       } else {
         openedMenu.value = null
       } 
@@ -160,7 +161,9 @@ export default {
           isPending.value = true
           error.value = false
           let id = e.currentTarget.getAttribute('name')
+          
           let index = getIndexOfBabi(e.currentTarget.getAttribute('name'))
+
           //delete from  collection(babillards)
               projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id).delete().then(()=> {
 
@@ -244,6 +247,7 @@ header, .tool-bar{
   border-radius: 25px;
   display: inline-block;
   overflow: hidden;
+  position: relative;
 }
 .babi h3{
   color: white;
@@ -260,6 +264,38 @@ header, .tool-bar{
   display: grid;
   place-items: center;
 }
+.babi-menu{
+  background-color: white;
+  padding: 40px 25px 20px 20px;
+  border: 1px solid white;
+  border-radius: 0 0px 0 25px;
+  position: absolute;
+  top: 0;
+  right: 0;
+  box-shadow: -2px 2px 10px rgb(12, 12, 12);
+}
+.menu-item{
+  padding: 6px 0;
+}
 
+.slide-enter-from{
+  transform: translate(100%, -100%)
+}
+.slide-enter-to{
+  transform: translate(0%, 0%)
+}
+.slide-enter-active{
+  transition: transform 300ms ease;
+}
+
+.slide-leave-from{
+  transform: translate(0%, 0%)
+}
+.slide-leave-to{
+  transform: translate(100%, -100%)
+}
+.slide-leave-active{
+  transition: transform 300ms ease;
+}
 
 </style>

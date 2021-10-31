@@ -21,9 +21,6 @@
           :style="document.babiStyles" 
           v-if="document">
 
-  
-
-
 <!-- cards     --> 
     <div class="babillard full parent3d" v-if="document.cardList">
       <div  class=" pointer lift card" 
@@ -35,12 +32,12 @@
 
         <!-- needs more conditions for different types of links -->
         <a v-if="card.type == 'link'" :href="card.linkData.url" target="_blank" class="linkATag full">
-          <img v-if="card.type == 'link'" :src="card.linkData.image" class="linkImg">
+          <img v-if="card.linkData.image" :src="card.linkData.image" class="linkImg">
           <img v-else  :src="card.linkData.favicon" class="linkIcon">
         </a>
-        <div class="card-top-bar width flex JC-space-between"> 
-          <h3 v-if="card.type == 'link'" class=" card-title">{{ card.linkData.title.substring(0,25) }}</h3>
-          <h3 v-if="card.type == 'link'" class=" card-title">{{ card.title }}</h3>
+        <div class="card-top-bar width flex JC-space-between">
+          <h3 v-if="card.linkData.title" class=" card-title">{{ card.linkData.title.substring(0,25) }}</h3>
+          <h3 v-if="card.type != 'link'" class=" card-title">{{ card.title }}</h3>
           <span class="pointer card-settings auto-left" :name="card.id "  @click="openCardMenu">more_vert</span>
         </div>
         <transition name="slide">  
@@ -55,7 +52,7 @@
         
         <p v-if="card.type == 'note'" class="full  note-content">{{ card.content }}</p>   
         <p v-if="card.type == 'import'" class=" image-description">{{ card.content }}</p>
-        <p v-if="card.type == 'link'" class=" image-description">{{ card.linkData.description.substring(0,25) }}</p>
+        <p v-if="card.linkData.description" class="image-description">{{ card.linkData.description.substring(0,25) }}</p>
         <div class="handle"></div>
 
         
