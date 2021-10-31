@@ -1,45 +1,44 @@
 <template>
-  <h1>{{name}}</h1>
-  <button @click="doClick">get metadata</button>
-  <button @click="handleClick">say hello</button>
-  <div>
-    <ul v-if="siteInfo">
-      <li>{{siteInfo.url}}</li>
-      <li>{{siteInfo.title}}</li>
-      <li>{{siteInfo.siteName}}</li>
-      <li>{{siteInfo.description}}</li>
-      <li>{{siteInfo.contentType}}</li>
-      <li>{{siteInfo.mediaType}}</li>
-      <li><img :src="siteInfo.images[0]" alt=""></li>
-    </ul>
-  </div>
+<div class=" full" @mouseover="handleMouseOver">
+    <span name="hovered1" >
+      tool no. 1
+    </span>
+    <span class="eric" v-if="showingToolTip == 'hovered1' ">
+      {{ toolTips.tip1 }}
+    </span>
+</div>
+
 </template>
 
 <script setup>
-    import { ref } from 'vue'
-    import { projectFunctions } from '@/firebase/config'
-    import { httpsCallable } from 'firebase/functions'
+   import { ref } from 'vue'
+
+  const text = ref('and my friends')
+  const color = ref('blue')
+  const colour = ref('red')
+  const toolTips = ref({
+    tip1: 'hello friend!'
+  })
     
-    const getMetadata = httpsCallable(projectFunctions, 'getMetadata')
-    const sayHello = httpsCallable(projectFunctions, 'sayHello')
-    const siteInfo = ref(null)
-
-    const doClick = async () =>{
-      getMetadata().then((result) => {
-        console.log(result.data)
-        siteInfo.value= result.data
-      })
+  const allowed = [ "hovered1",  "hovered2", "hovered3" ]
+  const showingToolTip = ref(null)
+  const handleMouseOver = (e) => {
+    if(allowed.includes(e.target.getAttribute('name'))) {
+      showingToolTip.value = e.target.getAttribute('name')
+    } else {
+      showingToolTip.value = null
     }
-    const handleClick = () => {
-      sayHello().then((result) => {
-      console.log(result.data)
-      
-    })
-    }
-
+  }
+            
 
 </script>
 
 <style scoped>
 
+span{
+  font-size: 30px;
+}
+span:after {
+  content: v-bind(text);
+}
 </style>

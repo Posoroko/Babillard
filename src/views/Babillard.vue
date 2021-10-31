@@ -1,11 +1,14 @@
 <template>
+
+<section class="sectionBabi full">
     <div class="tool-box">
       <div class="nav-btn_box">
           <span class="nav-btn nav-btn-on pointer"  @click="goBack">arrow_back</span>
       </div>
-        <h1>{{title}}</h1>
+        <h1 v-if="document">{{document.title}}</h1>
         <button @click="requestNewCard">créer une nouvelle carte</button>
         <h6>{{error}}</h6>
+        <button @click="printDoc">test</button>
     </div>
 
 <!-- Babillard     --> 
@@ -15,14 +18,16 @@
           @mousemove="moving" 
           @mouseup="letGo"
           ref="babi_div"
-          v-bind:style="babiStyles" >
+          :style="document.babiStyles" 
+          v-if="document">
 
+  
 
 
 <!-- cards     --> 
-    <div class="babillard full parent3d" v-if="cardBundle">
+    <div class="babillard full parent3d" v-if="document.cardList">
       <div  class=" pointer lift card" 
-        v-for="card in cardBundle" 
+        v-for="card in document.cardList" 
         :id="card.id"
         :key="card.id" 
         @mousedown="selectCard" >
@@ -30,12 +35,12 @@
 
         <!-- needs more conditions for different types of links -->
         <a v-if="card.type == 'link'" :href="card.linkData.url" target="_blank" class="linkATag full">
-          <img v-if="card.linkData.image" :src="card.linkData.image" class="linkImg">
+          <img v-if="card.type == 'link'" :src="card.linkData.image" class="linkImg">
           <img v-else  :src="card.linkData.favicon" class="linkIcon">
         </a>
         <div class="card-top-bar width flex JC-space-between"> 
-          <h3 v-if="card.linkData.title" class=" card-title">{{ card.linkData.title.substring(0,25) }}</h3>
-          <h3 v-if="card.title" class=" card-title">{{ card.title }}</h3>
+          <h3 v-if="card.type == 'link'" class=" card-title">{{ card.linkData.title.substring(0,25) }}</h3>
+          <h3 v-if="card.type == 'link'" class=" card-title">{{ card.title }}</h3>
           <span class="pointer card-settings auto-left" :name="card.id "  @click="openCardMenu">more_vert</span>
         </div>
         <transition name="slide">  
@@ -50,7 +55,7 @@
         
         <p v-if="card.type == 'note'" class="full  note-content">{{ card.content }}</p>   
         <p v-if="card.type == 'import'" class=" image-description">{{ card.content }}</p>
-        <p v-if="card.linkData.description" class=" image-description">{{ card.linkData.description.substring(0,25) }}</p>
+        <p v-if="card.type == 'link'" class=" image-description">{{ card.linkData.description.substring(0,25) }}</p>
         <div class="handle"></div>
 
         
@@ -64,7 +69,7 @@
       
 
       <transition name="fade">  
-        <div class="requestPanel lift form" v-if="requestPanelIsOn" :style="{left: posX, top: posY }"  key="1">
+        <div class="requestPanel lift form" v-if="requestPanelIsOn"  key="1">
 
 <!-- page = type     -->             
         <div class="newCardType full flex column" v-if="page === 'type'">
@@ -132,17 +137,18 @@
 
     </div>
 
-    
+</section>
 </template>
 
 <script>
 import{ projectFirestore } from '@/firebase/config'
 import getUser from '@/composables/getUser'
-import { useRouter } from 'vue-router'
+import { useRouter, onMounted } from 'vue-router'
 import { ref } from 'vue'
 import ImportFile from '@/components/ImportFile'
 import CreateLink from '@/components/CreateLink'
 import useStorage from '@/composables/useStorage'
+import getDocument from '@/composables/getDocument'
 // backgroundImage: 'url(' + wallpaper + ')',
 // backgroundColor: color,
 
@@ -152,25 +158,22 @@ export default {
   components: { ImportFile, CreateLink },
   setup(props){
     const { imageUrl, miniUrl, storageError, filePath, uploadImage } = useStorage()
-    const error = ref(null)
+    
   
     const isPending = ref(false)
     const { user } = getUser()
     const pathRef = 'users/' + user.value.uid + '/babillards/' + props.id + '/'
     const router = useRouter()
-    
+    const { document, error } = getDocument('users/' + user.value.uid + '/babillards/', props.id)
 /* code pour un babillard position absolute   :style="{left: card.posX, top: card.posY }"  */ 
 
-    const document = ref(null)
-    const title = ref(null)
-    const description = ref(null)
-    const wallpaper = ref(null)
-    const miniature = ref(null)
-    const color = ref(null)
-    const babiStyles = ref({})
-    const cardBundle = ref(null)
-    const type = ref(null)
-    const id = ref(props.id)
+    const printDoc = () =>  {
+      console.log(typeof document.value.isPublic)
+    }
+    
+    
+
+   
 /*------ Fin des variable du babillard  ----------*/
 
 /*----------- Variable de nouvelle carte ----------*/   
@@ -182,8 +185,7 @@ export default {
     const newCardContent = ref('')
     const imageName = ref('')
     const miniName = ref('')
-    const posX = ref()
-    const posY = ref()
+
     
 
 /*----------- Variable de nouvelle carte ----------*/
@@ -204,19 +206,20 @@ export default {
     }
     const deleteCard = (e) => {
       isPending.value = true
-      projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).get()
+      //get the babiList
+      projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(document.value.id).get()
       .then((doc) => {
         let temp = doc.data().cardList
-        console.log(temp)
-        for(let i = 0; i < temp.length - 1; i++ ){
-          console.log(i)
+        console.log(temp.length)
+        //iterate to find the bab in the array of babs
+        for(let i = 0; i < temp.length; i++ ){
           if(temp[i].id == e.target.getAttribute('name')) {
+            console.log('in here')
             temp.splice(i, 1)
-            break
           }
         }
-
-        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: temp})
+        //send back the new babiList
+        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(document.value.id).update({ cardList: temp})
         .then(() => {
           isPending.value = false
         })
@@ -243,8 +246,6 @@ export default {
             type: newCardType.value,
             content: newCardContent.value,
             id: time,
-            posX: posX.value,
-            posY: posY.value,
             filePath: filePath.value,
             imageUrl: imageUrl.value,
             miniUrl: miniUrl.value,
@@ -258,24 +259,24 @@ export default {
     }
     const getAndModifyField = async (newCard) => {    
         
-        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).get().then((doc) => {
+        projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(document.value.id).get().then((doc) => {
           if(doc.data().cardList){
             console.log('0')
             error.value = null
             var tempDoc = doc.data().cardList;
             tempDoc.push(newCard)
             console.log(tempDoc)
-            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({ cardList: tempDoc})
-            .then(()=> { cardBundle.value = tempDoc
+            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(document.value.id).update({ cardList: tempDoc})
+            .then(()=> { 
               console.log('1')
             }).catch((err) => {
-                console.log('2')
+                console.log('2: '+ err.message)
                 error.value = "couldn't update data: " + err.message
             })
 
             } else {
             let newArr = new Array(newCard)
-            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(id.value).update({cardList: newArr})
+            projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(document.value.id).update({cardList: newArr})
             .then(() => {
               console.log('3')
 
@@ -283,7 +284,7 @@ export default {
               error.value = "couldn't update data after creating new Array: " + err.message
               console.log('4')
             })
-            cardBundle.value = newArr
+
           }
           isPending.value = false
         }).catch((err) => {
@@ -294,8 +295,6 @@ export default {
             newCardTitle.value = null
             newCardType.value = null
             newCardContent.value = null
-            posX.value = null
-            posY.value = null
             requestPanelIsOn.value = false
         }
       }
@@ -305,17 +304,6 @@ export default {
     const requestNewCard = (e) => {
       if(!requestPanelIsOn.value){
           requestPanelIsOn.value = true
-          var pos =e.currentTarget.getBoundingClientRect()
-          if(e.clientX - pos.left < 200) {
-            posX.value = '250px'
-          } else {
-            posX.value = e.clientX - pos.left + 'px'
-          }
-          if(e.clientY - pos.top < 200) {
-            posY.value = '350px'
-          } else {
-            posY.value = e.clientY - pos.top + 'px'
-          }
           page.value = 'type'
       }
      
@@ -335,37 +323,13 @@ export default {
       router.push( { name: 'EspacePerso'} )
     } 
 
-    projectFirestore.collection('users/' + user.value.uid + '/babillards').doc(props.id).get()
-        .then((doc) => {
-            if(doc.exists){
-                document.value = doc.data()
-                title.value = doc.data().title
-                description.value = doc.data().description
-                type.value = doc.data().type
-                color.value = doc.data().color
-                wallpaper.value = doc.data().wallpaper
-                miniature.value = doc.data().miniature
-                babiHeight.value = window.innerHeight - babi_div.value.offsetTop + 'px'
-                cardBundle.value = doc.data().cardList
-                console.log(doc.data().color)
-                if (doc.data().wallpaper) {
-                    babiStyles.value =  { 
-                      background: 'url(' + doc.data().wallpaper + ')',
-                      backgroundSize: 'cover',
-                      backgroundPosition: 'center',           
-                      height: babiHeight
-                    }
-                } else if (doc.data().color) {
-                  babiStyles.value = { 
-                      background: doc.data().color,
-                      height: babiHeight 
-                  }
-                }
-            }     
-        })
-        .catch((err) => {
-          error.value = err.message
-        })
+      //figure out the height so the bab is full screen
+      // babiHeight.value = window.innerHeight - babi_div.value.offsetTop + 'px'
+
+
+  
+                
+      
     
     // pour créer une carte contenant une image, on commence par upload l'image dans Storage
     // createImageCard() est un 'emit' qui arrive du component 'importfile.vue'
@@ -403,8 +367,6 @@ export default {
               type: 'link',
               linkData: pack,
               id: time,
-              posX: posX.value,
-              posY: posY.value
           }
 
         console.log('all good 01')
@@ -417,22 +379,26 @@ export default {
 
     
 
-    return { document, title, goBack, requestNewCard, requestPanelIsOn, 
-    posX, posY, newCardTitle, createNewCard, newCardType, newCardContent, 
-    cardBundle, page, wallpaper, miniature, color, type, babi_div, babiHeight,
+    return { document,  goBack, requestNewCard, requestPanelIsOn, newCardTitle, createNewCard, newCardType, newCardContent, 
+     page, babi_div, babiHeight,
     createImageCard, goToTypePage, imageUrl, miniUrl, storageError, filePath, 
-    uploadImage, isPending, babiStyles, error, createLinkCard, openCardMenu, openedMenu, deleteCard }
+    uploadImage, isPending, error, createLinkCard, openCardMenu, openedMenu, deleteCard, printDoc }
   }
 }
 </script>
 
 <style scoped>
+.sectionBabi{
+  display: flex;
+  flex-direction: column;
 
+}
 .tool-box{
   padding: 1vh 0 1vh 5vw;
   background-color: rgb(255, 192, 120);
   display: flex;
   align-items: center;
+
 }
 .tool-box button{
   margin-left: 30px;
@@ -444,13 +410,16 @@ export default {
   flex-wrap: wrap;
   justify-content: center;
   align-items: flex-start;
-  overflow: auto;
+  overflow: scroll;
+    flex-grow: 1;
 }
 .requestPanel{
   width: 400px;
   padding: 20px;
   background-color: white;
   position: absolute;
+  top: 50%;
+  left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10000;
 }

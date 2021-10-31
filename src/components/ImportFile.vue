@@ -97,7 +97,9 @@ export default {
       inputFile_input.value.click()
     }
     const handleClick = () => {
-      if(miniature.value && selectedFile.value && !isPending) {
+    
+      if(miniature.value && selectedFile.value && !isPending.value) {
+        console.log('works here')
         isPending.value = true
         emit('createImageCard', {
           title: imageTitle.value,

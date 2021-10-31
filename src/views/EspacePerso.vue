@@ -78,7 +78,7 @@ import NewBab from '@/components/NewBab'
 import getUser from '@/composables/getUser'
 import { ref, onMounted, onUpdated } from 'vue'
 import { projectFirestore } from '@/firebase/config'
-import getDocument from '@/composables/getDocument'
+import getBabiList from '@/composables/getBabiList'
 
 export default {
   components: { NewBab },
@@ -87,7 +87,7 @@ export default {
     const nom = ref('')
     const component = ref('home')
     const babOpened = ref(false)
-    const { document, error } = getDocument('users/' + user.value.uid + '/userData', 'babiList')
+    const { document, error } = getBabiList('users/' + user.value.uid + '/userData', 'babiList')
     const openedMenu = ref(null)
     const isPending = ref(false)
     

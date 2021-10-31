@@ -275,8 +275,7 @@ export default {
                 const newBabi = {
                     title: title.value,
                     description: description.value,
-                    wallpaper: wallpaper.value,
-                    color: color.value,
+                    babiStyles: {},
                     miniature: miniature.value,
                     miniStyles: miniStyles,
                     type: type.value,
@@ -285,6 +284,17 @@ export default {
                     isPublic: isPublic.value,
                     createdAt: createdAt,
                     id: time
+                }
+                 if (wallpaper.value) {
+                    newBabi.babiStyles =  { 
+                      background: 'url(' + wallpaper.value + ')',
+                      backgroundSize: 'cover',
+                      backgroundPosition: 'center',           
+                    }
+                } else if (color.value) {
+                  newBabi.babiStyles = { 
+                      background: color.value,
+                  }
                 }
               
                 //upload du nouveau babillard
