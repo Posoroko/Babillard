@@ -485,6 +485,7 @@ export default {
   position: relative;
   padding: 8px;
   overflow: hidden;
+  box-shadow: 0 0 10px black;
 }
 .card:active{
   cursor: grabbing;
@@ -557,7 +558,7 @@ export default {
   position: absolute;
   top: 0;
   right: 0;
-  box-shadow: -2px 2px 10px rgb(51, 51, 51);
+  box-shadow: -2px 2px 10px rgb(12, 12, 12);
 }
 .menu-item{
   padding: 6px 0;
