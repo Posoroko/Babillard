@@ -4,7 +4,7 @@
           <h1><router-link :to="{ name: 'Home' }">Babillard</router-link></h1>
           <div class="links">
             <div v-if="user">
-              <router-link class="btn test" :to="{ name: 'Test'}">Test</router-link>
+              <!-- <router-link class="btn test" :to="{ name: 'Test'}">Test</router-link> -->
               <router-link class="btn" :to="{ name: 'EspacePerso'}">mes babillards</router-link>
               <button @click="handleClick">déconnexion</button>
             </div>

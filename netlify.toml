@@ -2,3 +2,6 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+   [[plugins]]
+9:07:18 PM:   package = "@netlify/plugin-functions-install-core"

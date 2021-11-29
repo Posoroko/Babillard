@@ -11,7 +11,7 @@
         <button @click="printDoc">test</button>
     </div>
 
-<!-- Babillard     --> 
+<!-- espace de travail     --> 
 
     <div class="babillard width" id="babillard" 
           @dblclick="requestNewCard" 
@@ -21,25 +21,53 @@
           :style="document.babiStyles" 
           v-if="document">
 
-<!-- cards     --> 
+<!-- babillard     --> 
     <div class="babillard full parent3d" v-if="document.cardList">
+
+<!-- cards     -->     
+
       <div  class=" pointer lift card" 
         v-for="card in document.cardList" 
         :id="card.id"
         :key="card.id" 
         @mousedown="selectCard" >
-        <img v-if="card.type == 'import'" :src="card.miniUrl" class="full card-mini">
 
-        <!-- needs more conditions for different types of links -->
-        <a v-if="card.type == 'link'" :href="card.linkData.url" target="_blank" class="linkATag full">
-          <img v-if="card.linkData.image" :src="card.linkData.image" class="linkImg">
-          <img v-else  :src="card.linkData.favicon" class="linkIcon">
-        </a>
-        <div class="card-top-bar width flex JC-space-between">
-          <h3 v-if="card.linkData.title" class=" card-title">{{ card.linkData.title.substring(0,25) }}</h3>
-          <h3 v-if="card.type != 'link'" class=" card-title">{{ card.title }}</h3>
-          <span class="pointer card-settings auto-left" :name="card.id "  @click="openCardMenu">more_vert</span>
+<!-- if card type is 'note' -->
+        <div class="width" v-if="card.type == 'note'">
+            
+            <div class="card-top-bar width flex JC-space-between">
+              <h3 class=" card-title">{{ card.title }}</h3>
+              <span class="pointer card-settings auto-left" :name="card.id "  @click="openCardMenu">more_vert</span>
+            </div>
+            <p class="full  note-content">{{ card.content }}</p>
+
         </div>
+
+<!-- if card type is 'link' -->
+        <div class="width" v-if="card.type == 'link'">
+            <a v-if="card.type == 'link'" :href="card.linkData.url" target="_blank" class="linkATag full">
+              <img v-if="card.linkData.image" :src="card.linkData.image" class="linkImg">
+              <img v-else  :src="card.linkData.favicon" class="linkIcon">
+            </a>
+            
+            <div class="card-top-bar width flex JC-space-between">
+              <h3 v-if="card.linkData.title" class=" card-title">{{ card.linkData.title.substring(0,25) }}</h3>
+              <span class="pointer card-settings auto-left" :name="card.id "  @click="openCardMenu">more_vert</span>
+            </div>
+            
+        </div>
+<!-- if card type is 'import' -->
+        <div class="width" v-if="card.type == 'import'">
+            <img :src="card.miniUrl" class="full">
+            <div class="card-top-bar width flex JC-space-between">
+              <h3 class=" card-title">{{ card.title }}</h3>
+              <span class="pointer card-settings auto-left" :name="card.id "  @click="openCardMenu">more_vert</span>
+            </div>
+            <p class="full  note-content">{{ card.content }}</p>
+
+        </div>
+
+
         <transition name="slide">  
             <div class="card-menu" v-if="openedMenu == card.id">
                 <h4 class="flex menu-item pointer" :name="card.id"  @click="deleteCard">supprimer
@@ -48,17 +76,8 @@
             </div>
         </transition>
 
-        
-        
-        <p v-if="card.type == 'note'" class="full  note-content">{{ card.content }}</p>   
-        <p v-if="card.type == 'import'" class=" image-description">{{ card.content }}</p>
-        <p v-if="card.linkData.description" class="image-description">{{ card.linkData.description.substring(0,25) }}</p>
-        <div class="handle"></div>
-
-        
-
-
       </div>
+      
     </div>
       
 
@@ -165,7 +184,7 @@ export default {
 /* code pour un babillard position absolute   :style="{left: card.posX, top: card.posY }"  */ 
 
     const printDoc = () =>  {
-      console.log(typeof document.value.isPublic)
+      console.log(document.value.cardList)
     }
     
     

@@ -12,9 +12,9 @@
                     <div class="small-tile lift type pointer access" :class="{ 'selected plus': (isPublic === false)}" id="priv" @click="setAccess"><h3>privé</h3>
                         <p>seulement vous y avez accès</p>
                     </div>
-                    <div class="small-tile lift type pointer" :class="{ 'selected plus': (isPublic === true )}" id="pub" @click="setAccess"><h3>publique</h3>
+                    <!-- <div class="small-tile lift type pointer" :class="{ 'selected plus': (isPublic === true )}" id="pub" @click="setAccess"><h3>publique</h3>
                         <p>accessible à tous </p>
-                    </div>
+                    </div> -->
                 </div>
                 
                 <div class="flex width">
@@ -37,8 +37,8 @@
                 <h3>Quel type de babillard voulez-vous créer?</h3>
                 <div class="type-box">
                     <div class="small-tile lift type pointer" id="classique" @click="setType" :class="{ 'selected plus': (type === 'classique')}">classique</div>
-                    <div class="small-tile lift type pointer" id="liste" @click="setType" :class="{ 'selected plus': (type === 'liste')}">liste</div>
-                    <div class="small-tile lift type pointer" id="ordonné" @click="setType" :class="{ 'selected plus': (type === 'ordonné')}">ordonné</div>
+                    <!-- <div class="small-tile lift type pointer" id="liste" @click="setType" :class="{ 'selected plus': (type === 'liste')}">liste</div>
+                    <div class="small-tile lift type pointer" id="ordonné" @click="setType" :class="{ 'selected plus': (type === 'ordonné')}">ordonné</div> -->
                 </div>
                 
                 <div class="flex width">
